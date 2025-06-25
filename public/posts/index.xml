@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on Heron lake</title>
+    <link>http://localhost:1313/posts/</link>
+    <description>Recent content in Posts on Heron lake</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 01 Mar 2025 15:00:00 +0100</lastBuildDate>
+    <atom:link href="http://localhost:1313/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Approximate Bayesian Computation with Wrocław trams</title>
+      <link>http://localhost:1313/posts/2025-03-01-abc-trams/</link>
+      <pubDate>Sat, 01 Mar 2025 15:00:00 +0100</pubDate>
+      <guid>http://localhost:1313/posts/2025-03-01-abc-trams/</guid>
+      <description>&lt;h2 id=&#34;introduction&#34;&gt;Introduction&lt;/h2&gt;&#xA;&lt;p&gt;Recently, I presented some results from the field of Simulation-Based Inference at the Statistical Journal Club at the Astronomical Observatory. While modern neural networks allow the creation of some&#xA;incredible models that allow for the Likelihood Free Inference (LFI), there are also some more old-school examples from the field of statistics. Those were usually labeled&#xA;as the Approximate Bayesian Computation (ABC) methods. Here, I would like to write something about the classical implementation and apply it to one of my favorite&#xA;problems known as the German tanks problem (although here there will be trams).&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>GMVAE clustering applied to RNA sequencing</title>
+      <link>http://localhost:1313/posts/2023-03-19-gmvae-clustering-applied-to-rna-sequencing/</link>
+      <pubDate>Sun, 19 Mar 2023 15:00:00 +0100</pubDate>
+      <guid>http://localhost:1313/posts/2023-03-19-gmvae-clustering-applied-to-rna-sequencing/</guid>
+      <description>&lt;h2 id=&#34;introduction&#34;&gt;Introduction&lt;/h2&gt;&#xA;&lt;p&gt;One of many classical tasks of machine learning is clustering, based on the data one would like to distinguish some clusters.&#xA;There are many classical approaches to clustering, the most notable ones include: K-means, GMM (Gaussian Mixture Model) trained with the EM algorithm, and DBSCAN.&#xA;While each of those algorithms is widely used in research and industry,&#xA;all of them try to cluster the data using its original representation and mostly fail in the case of hidden similarity between observations.\&#xA;In this post, I present a GMM+VAE deep learning architecture, which will be used to cluster the data based on a learned embedding of the data.&#xA;The clustering model is based on &lt;a href=&#34;https://arxiv.org/abs/1611.02648&#34;&gt;this paper&lt;/a&gt;, while application to RNA sequencing data is based on the work that I performed during my studies at the Warsaw University.&#xA;The original project with a solution can be found in a related &lt;a href=&#34;https://github.com/Wesenheit/SAD2-22W/tree/main/Project1&#34;&gt;GitHub repository&lt;/a&gt;.&#xA;The dataset used in the study was taken from the &lt;a href=&#34;https://openproblems.bio/competitions/neurips_2021/&#34;&gt;NeuroIPS 2021&lt;/a&gt; competition. In this blog, we will tackle the joint&#xA;embedding part of the competition. We will try to embed biological information in an unsupervised manner and at the same time reduce the impact of batch effect on&#xA;the model performance.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

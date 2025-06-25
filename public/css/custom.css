@@ -1,0 +1,6 @@
+@media (prefers-color-scheme: dark) {
+  img.invert-on-dark {
+    filter: invert(100%) hue-rotate(180deg);
+  }
+}
+
