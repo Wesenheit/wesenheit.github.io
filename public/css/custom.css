@@ -1,6 +1,5 @@
-@media (prefers-color-scheme: dark) {
-  img.invert-on-dark {
+#dark-mode-toggle .feather use[href*="#sun"] ~ img.invert-on-dark,
+body:has(#dark-mode-toggle .feather use[href*="#sun"]) img.invert-on-dark {
     filter: invert(100%) hue-rotate(180deg);
-  }
 }
 
