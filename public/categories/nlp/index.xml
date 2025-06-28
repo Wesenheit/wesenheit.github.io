@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>NLP on Heron lake</title>
+    <link>http://localhost:1313/categories/nlp/</link>
+    <description>Recent content in NLP on Heron lake</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 02 Feb 2023 23:20:00 +0100</lastBuildDate>
+    <atom:link href="http://localhost:1313/categories/nlp/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>LSTM vs Tolkien</title>
+      <link>http://localhost:1313/posts/2023-02-02-lstm-tolkien/</link>
+      <pubDate>Thu, 02 Feb 2023 23:20:00 +0100</pubDate>
+      <guid>http://localhost:1313/posts/2023-02-02-lstm-tolkien/</guid>
+      <description>&lt;h1 id=&#34;using-a-simple-lstm-model-which-surprisingly-isnt-as-easy-as-one-can-think-if-you-want-to-challenge-yourself-here-is-a-popular-website-with-a-great-quiz&#34;&gt;&amp;laquo;&amp;laquo;&amp;laquo;&amp;lt; HEAD&#xA;This notebook is greatly inspired by &lt;a href=&#34;https://gbnegrini.com/post/tolkien-character-or-prescription-drug-neural-networks/&#34;&gt;this notebook&lt;/a&gt; by G. Negrini. Please check out his website as he makes really good content.&#xA;In the orginal notebook, he used the Keras library while this approach is based on duo Jax + &lt;a href=&#34;https://dm-haiku.readthedocs.io/en/latest/&#34;&gt;Haiku&lt;/a&gt; from DeepMind.&#xA;Here we will try to recognize between drug names and Tolkien characters&#xA;using a simple LSTM model which surprisingly isn&amp;rsquo;t as easy as one can think. If you want to challenge yourself here is a popular website with &lt;a href=&#34;https://antidepressantsortolkien.vercel.app/&#34;&gt;a great quiz&lt;/a&gt;.&lt;/h1&gt;&#xA;&lt;p&gt;This notebook is greatly inspired by &lt;a href=&#34;https://gbnegrini.com/post/tolkien-character-or-prescription-drug-neural-networks/&#34;&gt;this notebook&lt;/a&gt; by G. Negrini. Please check out his website as he make really good content.&#xA;In original notebook he used Keras library while this approach is based on duo Jax + &lt;a href=&#34;https://dm-haiku.readthedocs.io/en/latest/&#34;&gt;Haiku&lt;/a&gt; from DeepMind.&#xA;Here we will try to recognize between drug names and Tolkien characters&#xA;using simple LSTM model which surprisingly isn&amp;rsquo;t as easy as one can think. If you want to challenge yourself here is popular website with &lt;a href=&#34;https://antidepressantsortolkien.vercel.app/&#34;&gt;great quiz&lt;/a&gt;.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

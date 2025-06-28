@@ -1,6 +1,6 @@
-baseURL = 'http://localhost:1313'
+baseURL = 'https://wesenheit.github.io/'
 languageCode = "en-us"
-title = "Heron lake"
+title = "Wesenheit"
 theme = "archie"
 pygmentsstyle = "monokai"
 pygmentscodefences = true
