@@ -5,7 +5,7 @@ theme = "archie"
 pygmentsstyle = "monokai"
 pygmentscodefences = true
 pygmentscodefencesguesssyntax = true
-
+googleAnalytics = "G-VJNX3W6V2E"
 disqusShortname = "yourDisqusShortname"
 
 [params]
