@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html><head lang="en">
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Approximate Bayesian Computation with Wrocław trams - Wesenheit</title><meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="Introduction
+Recently, I presented some results from the field of Simulation-Based Inference at the Statistical Journal Club at the Astronomical Observatory. While modern neural networks allow the creation of some
+incredible models that allow for the Likelihood Free Inference (LFI), there are also some more old-school examples from the field of statistics. Those were usually labeled
+as the Approximate Bayesian Computation (ABC) methods. Here, I would like to write something about the classical implementation and apply it to one of my favorite
+problems known as the German tanks problem (although here there will be trams)." />
+	<meta property="og:image" content=""/>
+	<meta property="og:url" content="https://wesenheit.github.io/posts/2025-03-01-abc-trams/">
+  <meta property="og:site_name" content="Wesenheit">
+  <meta property="og:title" content="Approximate Bayesian Computation with Wrocław trams">
+  <meta property="og:description" content="Introduction Recently, I presented some results from the field of Simulation-Based Inference at the Statistical Journal Club at the Astronomical Observatory. While modern neural networks allow the creation of some incredible models that allow for the Likelihood Free Inference (LFI), there are also some more old-school examples from the field of statistics. Those were usually labeled as the Approximate Bayesian Computation (ABC) methods. Here, I would like to write something about the classical implementation and apply it to one of my favorite problems known as the German tanks problem (although here there will be trams).">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2025-03-01T15:00:00+01:00">
+    <meta property="article:modified_time" content="2025-03-01T15:00:00+01:00">
+    <meta property="article:tag" content="Bayes">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Approximate Bayesian Computation with Wrocław trams">
+  <meta name="twitter:description" content="Introduction Recently, I presented some results from the field of Simulation-Based Inference at the Statistical Journal Club at the Astronomical Observatory. While modern neural networks allow the creation of some incredible models that allow for the Likelihood Free Inference (LFI), there are also some more old-school examples from the field of statistics. Those were usually labeled as the Approximate Bayesian Computation (ABC) methods. Here, I would like to write something about the classical implementation and apply it to one of my favorite problems known as the German tanks problem (although here there will be trams).">
+
+        <link href="https://wesenheit.github.io/css/fonts.2c2227b81b1970a03e760aa2e6121cd01f87c88586803cbb282aa224720a765f.css" rel="stylesheet">
+	
+
+	
+	<link rel="stylesheet" type="text/css" media="screen" href="https://wesenheit.github.io/css/main.6a0f23ea50fd34b46fee262a5a68e17d458c51a2bc99ba1ba018065de6b180c3.css" />
+		<link id="darkModeStyle" rel="stylesheet" type="text/css" href="https://wesenheit.github.io/css/dark.50b57e12d401420df23965fed157368aba37b76df0ecefd0b1ecd4da664f01a0.css"  disabled /><script type="text/javascript"
+		src="https://wesenheit.github.io/js/MathJax.js"></script>
+		
+		<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			tex2jax: {
+				inlineMath: [['$','$'], ['\\(','\\)']],
+				displayMath: [['$$','$$'], ['\[','\]']],
+				processEscapes: true,
+				processEnvironments: true,
+				skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+				TeX: { equationNumbers: { autoNumber: "AMS" },
+						 extensions: ["AMSmath.js", "AMSsymbols.js"] }
+			}
+		});
+		</script><link rel="stylesheet" href="https://wesenheit.github.io/katex/katex.min.css ">
+		<script defer src="https://wesenheit.github.io/katex/katex.min.js"></script>
+		<script defer src="https://wesenheit.github.io/katex/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+		
+		<script>
+			document.addEventListener("DOMContentLoaded", function() {
+					renderMathInElement(document.body, {
+							delimiters: [
+									{left: "$$", right: "$$", display: true},
+									{left: "$", right: "$", display: false}
+							]
+					});
+			});
+		</script>
+</head>
+<body>
+        <div class="content"><header>
+	<div class="main">
+		<a href="https://wesenheit.github.io/">Wesenheit</a>
+	</div>
+	<nav>
+		
+		<a href="/">Home</a>
+		
+		<a href="/posts">All posts</a>
+		
+		<a href="/about">About</a>
+		
+		<a href="/tags">Tags</a>
+		
+		| <span id="dark-mode-toggle" onclick="toggleTheme()"><svg class="feather">
+   <use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#sun" />
+</svg></span>
+		<script src="https://wesenheit.github.io/js/themetoggle.js"></script>
+		
+	</nav>
+</header>
+
+
+
+<link rel="stylesheet" href="/css/custom.css">
+
+<main>
+  <article>
+    <div class="post-container">
+      
+      <div class="post-content">
+        <div class="title">
+          <h1 class="title">Approximate Bayesian Computation with Wrocław trams</h1>
+          <div class="meta">Posted on Mar 1, 2025</div>
+        </div>
+        
+        <section class="body">
+          <h2 id="introduction">Introduction</h2>
+<p>Recently, I presented some results from the field of Simulation-Based Inference at the Statistical Journal Club at the Astronomical Observatory. While modern neural networks allow the creation of some
+incredible models that allow for the Likelihood Free Inference (LFI), there are also some more old-school examples from the field of statistics. Those were usually labeled
+as the Approximate Bayesian Computation (ABC) methods. Here, I would like to write something about the classical implementation and apply it to one of my favorite
+problems known as the German tanks problem (although here there will be trams).</p>
+<h2 id="abc---why">ABC - why?</h2>
+<p>If one wants to implement a distribution in Bayesian modeling frameworks like Pyro,  there is a need to implement two methods:
+Log-likelihood and sampling procedure. Those two are enough
+to use methods like Variational Inference (VI) or Markov Chain Monte Carlo (MCMC). Both of those methods are currently widely used in almost all parts of the Physics/Astronomy
+as a de facto standard inference tool. However, some problems are quite problematic to tackle with those two alone. Such problems include the models without known likelihood
+function. We are only able to generate samples $D$ from the model according to some parameters $\theta$. But how to infer the $P(\theta|D)$ if we do not know how
+to compute $P(D|\theta)$? One of the widely known procedures known as ABC rejection sampling works like this:</p>
+<ol>
+<li>Generate sample $\theta_i$ from prior $\pi(\theta)$.</li>
+<li>Generate data $D_i \sim P(D|\theta_i)$.</li>
+<li>If $||D_i - D|| &lt; \epsilon $ than we accept the sample $\theta_i$, otherwise reject.</li>
+</ol>
+<p>This algorithm may seem quite strange but let&rsquo;s break it down a bit. We are generating sample data and accept only those
+that are close enough to our observable output. Not only there are some tunable parameters like $\epsilon$, but also we
+have to select certain distance functions defined on the data space. The idea may seem simple as we just want to accept those parameters that
+generate &ldquo;close enough&rdquo; data points. However, there are two main problems with this algorithm:</p>
+<ol>
+<li>What if the true posterior is &ldquo;far&rdquo; from the prior?</li>
+<li>What if the data space is multidimensional?</li>
+</ol>
+<p>Both of those problems manifest themselves in the same way: acceptance ratio would be abysmal. If the prior is a Gaussian distribution
+centered around $0$ with the standard deviation equal to $1$ there is almost no chance that we will get samples from the true posterior
+which is centered around $5\sigma$ away.</p>
+<p>Similarly, if our data space has dimension $100$, it would be impossible to actually sample the exact data point. In other terms, as
+we are increasing the dimensionality of the data space, it is much harder to find a point lying $\epsilon$ away from the data point.
+How we can solve this problem?</p>
+<h2 id="summary-statistic">Summary statistic</h2>
+<p>It is proven that the aforementioned algorithm computes accurate posterior for $\epsilon \rightarrow 0 $. However, it also produces
+correct posterior if instead of comparing distances between data points we use distance between summary statistics which are <strong>sufficient</strong>. When I learned this
+for the first time I thought it was just a miracle. Sufficient statistic $T(D)$
+Allows us to compress the high-dimensional data to the low-dimensional representation. Unfortunately, it requires some knowledge
+about the distribution $P(D|\theta)$. Sufficient statistics is also important in the <strong>Blackwell - Rao</strong> theorem, which states that the conditional
+estimator using sufficient statistics is never worse. What are some popular summary statistics?</p>
+<ol>
+<li>Bernoulli distribution -&gt; sum of successes,</li>
+<li>Uniform distribution $\mathcal{U} (a,b)$ -&gt; minimal and maximal value,</li>
+<li>Normal distribution with known standard deviation -&gt; mean value of samples.</li>
+</ol>
+<p>While in the first and second examples, the summary statistic is one-dimensional, in the second one we have two dimensions.</p>
+<h2 id="wrocław-tram-problem">Wrocław tram problem</h2>
+<p>Here, I would like to show the solution to something called the German tank problem. During world war II, it was applied to estimate the
+production of German equipment (not only tanks). In principle, if the German equipment was captured, the allies tried to write down the serial numbers of
+equipment and estimate what was the total amount of equipment produced. This is essentially an estimation problem, what are the parameters of uniform distribution if we know
+multiple samples from this distribution? There are also other problems that are similar, one of those problems can be related to the tram number estimation.</p>
+<p>For multiple years the numbering scheme of trams in Wrocław was chaotic, there were some gaps in the tram numbers. However, last year the numbering scheme was
+reorganized, and right now we have $N$ tram numbers starting from the $1$. If one visits a new city it is common to take a tram or two to travel. The question is,
+what is the number of trams in the city if we have few train numbers? To compute this number, one needs to solve an almost exact estimation problem. How we can approach it? There is an exact solution
+to the problem which can be found on Wikipedia. However, here I would like to use the ABC method.</p>
+<p>The sufficient statistic for the Uniform distribution $D_i \sim \mathcal{U}(1,N)$ is $m = max(D_i)$. During my last visit to Wrocław, I saw the following tram numbers:
+1,6,7,8,9,11,23. We have $k = 7$ observations. Our sufficient statistic is equal to $m = 23$. To compute the posterior distribution for $N$ I follow this procedure:</p>
+<ol>
+<li>Sample maximum tram number $N_i$ from prior $N \sim \mathcal{U}(T(D),50)$ (maximum number of trams is $50$).</li>
+<li>Sample $k$ different numbers of trains from $\hat{D}_i \sim \mathcal{U}(1,N_i)$.</li>
+<li>If $max(\hat{D_i}) = m$ than we accept the sample $N_i$ for our posterior.</li>
+</ol>
+<p>Here, we are using $\epsilon=0$ which is quite unique and applicable only when we have a countable number of possible outcomes.
+It turns out that such implementation should give an exact posterior!</p>
+<p>Python implementation is quite straightforward. I sample $10^6$ distinct $N_i$ values from the prior. Then, I proceed with the selection. To increase the sampling
+rate, I sample $N_i$ starting from the maximal number of trams that were spotted. In the end, the sampling rate is around $5%$ which is not great. What about the results?</p>
+<img src="posterior.png" class="invert-on-dark" alt="Posterior">
+<p>In red we have the KDE estimate from the ABC sampling. The black line represents the true number of trains in Wrocław $24$.
+In my calculation, I exclude the $0$ line, as it wasn&rsquo;t running during my last visit (otherwise there would be $25$ trams).
+The blue value denotes the
+Minimum-Variance Unbiased Estimator (MVUE) $MVUE = m + \frac{m}{k}-1$. Green value denotes the Bayesian median value $Med = m + \frac{m}{k-1}\ln{2}$.
+Maximum likelihood estimation is $m=23$ which is one short of the true value.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>As demonstrated, the ABC posterior estimation can produce accurate posterior estimations for the tram problem. However,
+the problem that was solved is very simplified. Usually, real-life tasks are much more problematic. There are very few publications
+that would apply this method and obtain state-of-the-art results. However, some real-life astronomical examples have been made including
+<a href="https://ui.adsabs.harvard.edu/abs/2018AJ....155..205H/abstract">exoplanet occurrence rates</a>. The true problematic part of the method
+manifested itself fully, as several ABC sampling rounds were applied to mitigate problems with the sampling rate. While sufficient statistics may
+reduce the curse of dimensionality, it is quite hard to reduce the problems associated with the prior-posterior relative distance. In our simple
+application, those problems also manifested themselves, despite all the efforts sampling rate was very low $4.3%$. If we would permit
+wider posterior $\mathcal{U}(1,100)$, our sampling rate would be even lower. Hence, the ABC method is certainly not the best for the inference.</p>
+
+        </section>
+        <div class="post-tags">
+          
+          
+          
+        </div>
+      </div>
+
+      
+      
+    </div>
+
+    <div id="disqus_thread"></div>
+<script type="text/javascript">
+    (function () {
+        
+        
+        if (window.location.hostname == "localhost")
+            return;
+
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        var disqus_shortname = 'yourDisqusShortname';
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+        Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</article>
+</main>
+<footer>
+  <div style="display:flex"><a class="soc" href="https://github.com/wesenheit" rel="me" title="GitHub"><svg class="feather">
+   <use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#github" />
+</svg></a><a class="border"></a></div>
+  <div class="footer-info">
+    2025  <a
+      href="https://github.com/athul/archie">Archie Theme</a> | Built with <a href="https://gohugo.io">Hugo</a>
+  </div>
+</footer>
+
+
+
+</div>
+    </body>
+</html>

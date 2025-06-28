@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html><head lang="en">
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>GMVAE clustering applied to RNA sequencing - Wesenheit</title><meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="Introduction
+One of many classical tasks of machine learning is clustering, based on the data one would like to distinguish some clusters.
+There are many classical approaches to clustering, the most notable ones include: K-means, GMM (Gaussian Mixture Model) trained with the EM algorithm, and DBSCAN.
+While each of those algorithms is widely used in research and industry,
+all of them try to cluster the data using its original representation and mostly fail in the case of hidden similarity between observations.\
+In this post, I present a GMM&#43;VAE deep learning architecture, which will be used to cluster the data based on a learned embedding of the data.
+The clustering model is based on this paper, while application to RNA sequencing data is based on the work that I performed during my studies at the Warsaw University.
+The original project with a solution can be found in a related GitHub repository.
+The dataset used in the study was taken from the NeuroIPS 2021 competition. In this blog, we will tackle the joint
+embedding part of the competition. We will try to embed biological information in an unsupervised manner and at the same time reduce the impact of batch effect on
+the model performance." />
+	<meta property="og:image" content=""/>
+	<meta property="og:url" content="https://wesenheit.github.io/posts/2023-03-19-gmvae-clustering-applied-to-rna-sequencing/">
+  <meta property="og:site_name" content="Wesenheit">
+  <meta property="og:title" content="GMVAE clustering applied to RNA sequencing">
+  <meta property="og:description" content="Introduction One of many classical tasks of machine learning is clustering, based on the data one would like to distinguish some clusters. There are many classical approaches to clustering, the most notable ones include: K-means, GMM (Gaussian Mixture Model) trained with the EM algorithm, and DBSCAN. While each of those algorithms is widely used in research and industry, all of them try to cluster the data using its original representation and mostly fail in the case of hidden similarity between observations.\ In this post, I present a GMM&#43;VAE deep learning architecture, which will be used to cluster the data based on a learned embedding of the data. The clustering model is based on this paper, while application to RNA sequencing data is based on the work that I performed during my studies at the Warsaw University. The original project with a solution can be found in a related GitHub repository. The dataset used in the study was taken from the NeuroIPS 2021 competition. In this blog, we will tackle the joint embedding part of the competition. We will try to embed biological information in an unsupervised manner and at the same time reduce the impact of batch effect on the model performance.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2023-03-19T15:00:00+01:00">
+    <meta property="article:modified_time" content="2023-03-19T15:00:00+01:00">
+    <meta property="article:tag" content="Bayes">
+    <meta property="article:tag" content="Deep Learning">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="GMVAE clustering applied to RNA sequencing">
+  <meta name="twitter:description" content="Introduction One of many classical tasks of machine learning is clustering, based on the data one would like to distinguish some clusters. There are many classical approaches to clustering, the most notable ones include: K-means, GMM (Gaussian Mixture Model) trained with the EM algorithm, and DBSCAN. While each of those algorithms is widely used in research and industry, all of them try to cluster the data using its original representation and mostly fail in the case of hidden similarity between observations.\ In this post, I present a GMM&#43;VAE deep learning architecture, which will be used to cluster the data based on a learned embedding of the data. The clustering model is based on this paper, while application to RNA sequencing data is based on the work that I performed during my studies at the Warsaw University. The original project with a solution can be found in a related GitHub repository. The dataset used in the study was taken from the NeuroIPS 2021 competition. In this blog, we will tackle the joint embedding part of the competition. We will try to embed biological information in an unsupervised manner and at the same time reduce the impact of batch effect on the model performance.">
+
+        <link href="https://wesenheit.github.io/css/fonts.2c2227b81b1970a03e760aa2e6121cd01f87c88586803cbb282aa224720a765f.css" rel="stylesheet">
+	
+
+	
+	<link rel="stylesheet" type="text/css" media="screen" href="https://wesenheit.github.io/css/main.6a0f23ea50fd34b46fee262a5a68e17d458c51a2bc99ba1ba018065de6b180c3.css" />
+		<link id="darkModeStyle" rel="stylesheet" type="text/css" href="https://wesenheit.github.io/css/dark.50b57e12d401420df23965fed157368aba37b76df0ecefd0b1ecd4da664f01a0.css"  disabled /><script type="text/javascript"
+		src="https://wesenheit.github.io/js/MathJax.js"></script>
+		
+		<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			tex2jax: {
+				inlineMath: [['$','$'], ['\\(','\\)']],
+				displayMath: [['$$','$$'], ['\[','\]']],
+				processEscapes: true,
+				processEnvironments: true,
+				skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+				TeX: { equationNumbers: { autoNumber: "AMS" },
+						 extensions: ["AMSmath.js", "AMSsymbols.js"] }
+			}
+		});
+		</script><link rel="stylesheet" href="https://wesenheit.github.io/katex/katex.min.css ">
+		<script defer src="https://wesenheit.github.io/katex/katex.min.js"></script>
+		<script defer src="https://wesenheit.github.io/katex/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+		
+		<script>
+			document.addEventListener("DOMContentLoaded", function() {
+					renderMathInElement(document.body, {
+							delimiters: [
+									{left: "$$", right: "$$", display: true},
+									{left: "$", right: "$", display: false}
+							]
+					});
+			});
+		</script>
+</head>
+<body>
+        <div class="content"><header>
+	<div class="main">
+		<a href="https://wesenheit.github.io/">Wesenheit</a>
+	</div>
+	<nav>
+		
+		<a href="/">Home</a>
+		
+		<a href="/posts">All posts</a>
+		
+		<a href="/about">About</a>
+		
+		<a href="/tags">Tags</a>
+		
+		| <span id="dark-mode-toggle" onclick="toggleTheme()"><svg class="feather">
+   <use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#sun" />
+</svg></span>
+		<script src="https://wesenheit.github.io/js/themetoggle.js"></script>
+		
+	</nav>
+</header>
+
+
+
+<link rel="stylesheet" href="/css/custom.css">
+
+<main>
+  <article>
+    <div class="post-container">
+      
+      <div class="post-content">
+        <div class="title">
+          <h1 class="title">GMVAE clustering applied to RNA sequencing</h1>
+          <div class="meta">Posted on Mar 19, 2023</div>
+        </div>
+        
+        <section class="body">
+          <h2 id="introduction">Introduction</h2>
+<p>One of many classical tasks of machine learning is clustering, based on the data one would like to distinguish some clusters.
+There are many classical approaches to clustering, the most notable ones include: K-means, GMM (Gaussian Mixture Model) trained with the EM algorithm, and DBSCAN.
+While each of those algorithms is widely used in research and industry,
+all of them try to cluster the data using its original representation and mostly fail in the case of hidden similarity between observations.\
+In this post, I present a GMM+VAE deep learning architecture, which will be used to cluster the data based on a learned embedding of the data.
+The clustering model is based on <a href="https://arxiv.org/abs/1611.02648">this paper</a>, while application to RNA sequencing data is based on the work that I performed during my studies at the Warsaw University.
+The original project with a solution can be found in a related <a href="https://github.com/Wesenheit/SAD2-22W/tree/main/Project1">GitHub repository</a>.
+The dataset used in the study was taken from the <a href="https://openproblems.bio/competitions/neurips_2021/">NeuroIPS 2021</a> competition. In this blog, we will tackle the joint
+embedding part of the competition. We will try to embed biological information in an unsupervised manner and at the same time reduce the impact of batch effect on
+the model performance.</p>
+<h1 id="about-vae">About VAE</h1>
+<p>Normal VAE architecture can be understood as a quite simple Bayesian Graphical model that tries to describe data $x\in \mathbb{R}^N$ as
+a function of some hidden latent variable $z\in \mathbb{R} ^n $. $N$ represents dimensionality of original data, while $n$ stands for dimensionality of latent space.
+Most basic VAE models can be written as
+\begin{align}
+z\sim \mathcal{N}(0,\mathbf{I})
+\end{align}
+\begin{equation}
+x\sim P(\theta(z)),
+\end{equation}
+where $P(\theta(z))$ stands for an arbitrary probability distribution used to model data, while $\theta(z)$
+denotes parameters of the aforementioned distribution, which are functions of latent variable $z$ modeled by a neural network.
+Few useful probability distributions can be used to model the data.
+However, each distribution should be chosen with the true nature of observation in mind. For example, a most popular distribution that can be used to model images is the
+independent Bernoulli distribution
+\begin{equation}
+P(x_i)\sim Bernoulli(\theta_i(z)),
+\end{equation} where each pixel is modeled independently from others. This particular choice leads to the binary cross-entropy loss, as one can verify.
+To perform variational inference, one usually takes multivariate Gaussian posterior with a diagonal covariance matrix modeled by a neural network,
+which we will denote as $\phi_z$. We will assume that it outputs a set of means $\mu_i$ and variances $\sigma_i^2$.
+Strictly speaking, our variational family is
+\begin{equation}
+q(z_i|x)=\mathcal{N}(\mu_i(x),\sigma_i^2(x))
+\end{equation}.
+After calculations, one can derive a lower bound of our data (ELBO), which can be used as a loss function
+\begin{equation}
+\mathcal{L}=-ELBO=-E_q\log{P(x|z)}+\mathcal{D_{KL}}(q(z|x)||p(z)),
+\end{equation}
+where $\mathcal{D_{KL}}$ is Kullback-Leibner divergence between the posterior $q(z|x)$ and the prior $p(z)$. Since both prior and posterior
+are assumed to be Gaussian, it&rsquo;s very easy to compute both quantities analytically.
+The exact method used to infer parameters of distributions is very similar to the process of training a normal autoencoder with a small difference in loss
+and with the addition of a reparametrization trick.</p>
+<p>Why should one use a VAE to describe the data? Similarly to normal autoencoders, one can expect that if two observations are closely related, they will be also
+closely related in latent space, allowing to perform some sort of dimensionality reduction. This observation leads to the assumption, that latent space should be a good
+place to look for similarity in our data, which is it&rsquo;s not always true. In many cases, latent space is entangled and it&rsquo;s hard to perform any type of clustering.</p>
+<h2 id="gmvae">GMVAE</h2>
+<h1 id="how-do-design-the-model">How do design the model?</h1>
+<p>To overcome the aforementioned difficulties with the disentanglement of latent space, we can write down a slightly modified model. Previously, we had prior that
+was inherently compact, as the Gaussian with zero means tends to cluster everything together. Let&rsquo;s use instead a GMM as the prior distribution. How we can write it down?
+Let&rsquo;s change notation, as we will need many latent variables to write down the model. First of all, we want to model our observations which we will denote as $y$.
+We want to model data using latent variables $w\in \mathbb{R}^{n_w}$, $z\in [0,1]^K$ and $x\in \mathbb{R}^{n_z}$ as
+\begin{equation}
+w \sim \mathcal{N}(0,\mathbf{I})
+\end{equation}
+\begin{equation}
+z\sim Mult \bigg(\frac{1}{K},\ldots,\frac{1}{K}\bigg)
+\end{equation}
+\begin{equation}
+x|w,z\sim \Pi_{k=1}^{K} z_k \mathcal{N}(\mu_{z_k}(w,\beta),diag(\sigma_{z_k}(w,\beta)))
+\end{equation}
+\begin{equation}
+y\sim P(\theta(x))
+\end{equation}
+How to understand this model? First of all, parameters of our Gaussian distributions are generated using latent variable $w$ which is passed through
+the neural network with parameters $\beta$. There is also a latent variable $z$, which chooses which cluster is selected, like in the traditional GMM model.
+Those two parameters are used to construct prior distribution for our final latent variable $x$, which is used together by neural network $\theta$ to
+parametrize the final probability distribution. There are a few pros of this approach, the most important one can be seen when we write down our variational family for inference.
+Following the original approach, the variational family can be written as
+\begin{equation}
+q(x,w,z|y)=q_{\phi_w}(w|y)q_{\phi_x}(x|y)p_\beta(z|x,w)
+\end{equation}
+where $\phi_x$ and $\phi_x$ denote neural networks used in the inference process (as previously, they parametrize means and variations of Gaussian posterior).
+In order to obtain posterior on $z$, which is denoted as $p_\beta(z|x,w)$,
+we can write
+\begin{equation}
+p_\beta(z_i=1|x,w)=\frac{p(z_i=1)p(x|z_i=1,w)}{\sum_{j=1}^{K}p(z_j=1)p(x|z_j=1,w)}.
+\end{equation}
+We can see that we have no explicit inference process concerning $z$! This is quite important as
+it&rsquo;s much harder to sample from categorical distributions in a way that will allow to propagation of a gradient. There are a few approaches,
+one of them is the Gumbel-softmax reparametrization trick introduced in <a href="https://arxiv.org/abs/1611.01144">this paper</a>.</p>
+<h1 id="loss-function">Loss function</h1>
+<p>As usual, we write down our loss function  -ELBO
+\begin{equation}
+\mathcal{L}=-E_q \frac{p_{\beta,\theta}(x,y,w,z)}{q(x,w,z|y)}=-E_q\log{p(y|x)}+\mathcal{D}_{KL}(q(w|y)||p(w))+
+\end{equation}</p>
+<p>\begin{equation}
+E_{q(x|y)q(w|y)} \mathcal{D}_{KL}(p(z|x,w) || p(z) )+
+\end{equation}</p>
+<p>\begin{equation}
+E_{q(w|y)p(z|x,y)}+\mathcal{D}_{KL}(q(x|y)||p(x|w,z))
+\end{equation}</p>
+<p>The first two terms represent something we had earlier, KL between prior for $w$ and posterior, and reconstruction loss. The third term represents
+KL between posterior and prior for $z$, but we have categorical distributions rather than Gaussian ones. In the end, we have something that one can write down as
+a conditional prior term, it represents how our posterior on $x$ is different from our GMM model. We can write down this term as
+\begin{equation}
+\sum_{i=1}^{K}p(z_i=1|x,w)\mathcal{D}_{KL}(q(x|y)||p(x|w,z_i=1))
+\end{equation}
+This is easy to compute as we have KL between two Gaussian distributions.
+When we see what our loss function looks like we can look at our data.</p>
+<h2 id="gene-expression-data">Gene expression data</h2>
+<p>The dataset used in this study was taken from the benchmark set of the competition. Cite data was used with gene expression (GEX) features only.
+Our dataset consists of expression measurements of $13431$ genes. There are $58861$ observations in the training set and $10388$ in the test set. The dataset was collected from
+$10$ donors at $4$ lab sites for $22$ different cell types. The dataset is heavily zero-inflated as $91%$ of data is zero. We have
+$13$ unique combinations of donors and lab sites, which will be important later. Our measurements are expressed in counts,
+mean value of the test set is $0.14$ while the standard deviation is $2.38$. We can see what our data looks like on the heatmap below. Our data is dominated by
+zero, each positive measruments is colored and the image is almost dark.</p>
+<img src="heatmap.png" class="invert-on-dark" alt="Heatmap">
+<p>In the Figure below, the UMAP embedding of the test data is presented together with the measures of clustering described in the next section (colors by cell type).
+It&rsquo;s visible that the clustering does not match cell type well and it lacks a lot of features.</p>
+<img src="umap_layers.png" class="invert-on-dark" alt="Umap">
+<h1 id="tackling-batch-effect">Tackling batch effect</h1>
+<p>As previously mentioned, there are $13$
+the distinct ID of the batch, there is great probability that instead of clustering based on purely biological causes we would obtain clustering based on those batches.
+To overcome this, instead of modeling $p(y|x)$ we model $p(y|x,b)$, where $b$ is a one-hot encoded vector of batch ID. This hopefully will help to
+clear latent space $x$ from any external effects allowing to catch only biological activity.</p>
+<h2 id="implementation-of-model">Implementation of model</h2>
+<p>To implement GMVAE PyTorch library was used. Here, it was decided that the dimensionality of data was $n_x=80$, $n_z=60$ while a number of clusters was set to $K=20$.
+As the data we are dealing with is discrete, we can model it using a Negative Binomial distribution with parameters $p\in [0,1]$, $r\in \mathcal{R}^+$. Total likelihood can be described by the formula:
+\begin{equation}
+P(x=k|r_i,p_i)={k+r-1\choose k}(1-p)^k p^r
+\end{equation}
+As there are two parameters to specify, we need two heads with dimensionality $13431$ each, to output parameters of the distribution.</p>
+<p>The Decoder and encoder of our VAE were $2$ layers deep with parameters:</p>
+<ul>
+<li>Encoder: $13431-300-250$ followed by 2 heads with dimensionality $2n_x$ and $2n_w$ used to describe posterior of $x$ and $w$</li>
+<li>Decoder: $n_x+12-250-300$ followed by 2 heads with dimensionality $13431$</li>
+<li>Beta neural network: $n_w-300-4Kn_x$</li>
+</ul>
+<p>Each layer was followed by gelu activation, layer normalization, and dropout with $p=0.05$. We have a few observations with high value. Hence,
+we need to scale down our data to zero mean and variation of $1$, otherwise
+we will encounter problems with overflow.
+GMVAE is trained using Adam optimizer with initial learning rate $0.001$ for $40$ epochs, learning rate multiplied by factor of $0.7$ after $25$
+epochs.
+For every batch, a gradient is estimated using $M=10$ Monte Carlo samples allowing for much more stable training. The following architecture was found to be the best
+after a few tries, as it&rsquo;s the biggest model that&rsquo;s only slightly overfitting.</p>
+<h1 id="measuring-performance-of-the-embedding">Measuring performance of the embedding</h1>
+<p>There are many ways to measure whether the embedding works well. To keep things simple, five particular measures will be used.
+Most scores are based on <a href="https://openproblems.bio/competitions/neurips_2021_docs/about_tasks/task3_joint_embedding.html">original score methods</a>.
+Three of them measure the effect of clustering, while the remaining two measure the impact of the batch effect on clustering:</p>
+<ul>
+<li>Average Silhouette Width for cell type</li>
+<li>Normalized Mutual Information between Leiden clustering on embedded data and cell type</li>
+<li>Adjusted Rand Index between K means clustering and cell type</li>
+<li>Batch adjusted Silhouette Width</li>
+<li><a href="https://github.com/theislab/kBET">kBET</a></li>
+</ul>
+<p>Almost all of those scores were calculated using <a href="https://github.com/theislab/scib">scib</a> Python package.
+Batch-adjusted Silhouette Width together with kBET tries to measure whether the embedding does not depend on batch ID.
+Detailed information on those methods can be found using the aforementioned link. Both NMI and Rand index are computed by clustering embedded space
+with algorithm (Leiden or means), and then trying to find for which clustering configuration the best value of the measure is achieved. Leiden algo is
+performed using resolution ranging from $0.1$ to $2.0$ with the spacing of $0.1$, while means is performed for different cluster numbers from $1$ to $22$.
+As those measures aren&rsquo;t optimized, we can expect that they will vary a lot. To determine which configuration works best for each training
+is repeated $6$ times.</p>
+<h1 id="results">Results</h1>
+<p>To determine how cluster number influences the performance of clustering, grid search over a number of clusters $K$ was performed. As we expect clustering
+to work best for $K=22$, calculations were performed for $K$ equal $1$, $10$, $20$, $30$, $40$ and $50$. We would like to cover a vast
+range of possible values together with those much higher than $22$. The following table shows how to measure values depending on the number of clusters:</p>
+<table>
+  <thead>
+      <tr>
+          <th>K</th>
+          <th>ARI</th>
+          <th>ASW</th>
+          <th>NMI</th>
+          <th>Batch ASW</th>
+          <th>kBET</th>
+          <th>$-ELBO$</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>$1$</td>
+          <td>$0.359\pm 0.028$</td>
+          <td>$0.724\pm 0.005$</td>
+          <td>$0.666\pm 0.014$</td>
+          <td>$0.793\pm 0.004$</td>
+          <td>$0.802\pm 0.013$</td>
+          <td>$3582$</td>
+      </tr>
+      <tr>
+          <td>$10$</td>
+          <td>$0.415\pm 0.032$</td>
+          <td>$0.680\pm 0.015$</td>
+          <td>$0.728\pm 0.017$</td>
+          <td>$0.828\pm 0.004$</td>
+          <td>$0.807\pm 0.030$</td>
+          <td>$3578$</td>
+      </tr>
+      <tr>
+          <td>$20$</td>
+          <td>$0.394\pm 0.029$</td>
+          <td>$0.679\pm 0.014$</td>
+          <td>$0.716\pm 0.010$</td>
+          <td>$0.822\pm 0.007$</td>
+          <td>$0.809\pm 0.030$</td>
+          <td>$3578$</td>
+      </tr>
+      <tr>
+          <td>$30$</td>
+          <td>$0.402\pm 0.037$</td>
+          <td>$0.705\pm 0.011$</td>
+          <td>$0.716\pm 0.009$</td>
+          <td>$0.824\pm 0.003$</td>
+          <td>$0.799\pm 0.022$</td>
+          <td>$3579$</td>
+      </tr>
+      <tr>
+          <td>$40$</td>
+          <td>$0.395\pm 0.021$</td>
+          <td>$0.683\pm 0.014$</td>
+          <td>$0.724\pm 0.007$</td>
+          <td>$0.825\pm 0.005$</td>
+          <td>$0.825\pm 0.019$</td>
+          <td>$3580$</td>
+      </tr>
+      <tr>
+          <td>$50$</td>
+          <td>$0.383\pm 0.040$</td>
+          <td>$0.707\pm 0.017$</td>
+          <td>$0.710\pm 0.007$</td>
+          <td>$0.820\pm 0.007$</td>
+          <td>$0.795\pm 0.008$</td>
+          <td>$3581$</td>
+      </tr>
+  </tbody>
+</table>
+<p>It&rsquo;s visible that the model benefits from configurations with many clusters, using $K&gt;1$ we can achieve much better results. Surprisingly,
+the best model does not use $K=20$ as one can expect, although differences between models are quite small
+and not statistically significant. On the other hand, $-ELBO$ is much more stable and indicates that best values are achieved for $K&lt;30$. There is
+also one thing that should be noticed. Even if the total loss is rather stable and does not change across repetitions, $z$ prior loss is changing.
+Moreover, it&rsquo;s slightly correlated with the aforementioned measures of clustering.</p>
+<h1 id="over-regularisation">Over-regularisation?</h1>
+<p>Sometimes VAE exhibits behavior called overregulation, when the prior term is so strong that it overpowers reconstruction loss.
+This affects GMVAE as well and manifests itself in the form of huge degenerate clusters as shown in the original paper. One of the solutions to the problem is to switch on regularization over $z$
+latent variable only when $z$ prior loss is bigger then some constant $\lambda$. Strictly speaking
+\begin{equation}
+\mathcal{L}=max(\lambda,\mathcal{D}_{KL}(p(z|x,w) || p(z) ))
+\end{equation}
+The idea is simple, we start with no effective loss for $z$ prior and try to spiral down into a more optimal solution, and then turn loss above some value.
+Unfortunately, this study failed to capture if using nonzero $\lambda$ can help with clustering. To see whether the results would be better
+one needs to gather more data to train.</p>
+<h1 id="sample-results">Sample Results</h1>
+<p>In the end, UMAP embedding on one particular setting is presented together with the loss curve. $K=22$ was selected as it&rsquo;s equal to the cell number in the dataset.
+<img src="loss_curve_80_60_22_0.png" class="invert-on-dark" alt="Loss">
+At the end of the training, our model is slightly overfitted which isn&rsquo;t surprising, as we have high dimensional input. Nevertheless,
+training error does not increase during training.
+<img src="umap_latent_80_60_22_0.png" class="invert-on-dark" alt="Umap_latent">
+We can see that the embedding is much better in resolving particular cell types than UMAP on pure data.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>In the presented work performance of GMVAE was analysed with regard to the unsupervised clustering task. Negative binomial distribution
+was used to model gene expression data, resulting in a quite good embedding of biological signal together with suppression of batch effect. The whole model with
+associated code can be found in <a href="https://github.com/Wesenheit/GEX_GMVAE">github repository</a>.</p>
+
+        </section>
+        <div class="post-tags">
+          
+          
+          <nav class="nav tags">
+            <ul class="tags">
+              
+              <li><a href="/tags/bayes">Bayes</a></li>
+              
+              <li><a href="/tags/deep-learning">Deep Learning</a></li>
+              
+            </ul>
+          </nav>
+          
+          
+        </div>
+      </div>
+
+      
+      
+    </div>
+
+    <div id="disqus_thread"></div>
+<script type="text/javascript">
+    (function () {
+        
+        
+        if (window.location.hostname == "localhost")
+            return;
+
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        var disqus_shortname = 'yourDisqusShortname';
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+        Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</article>
+</main>
+<footer>
+  <div style="display:flex"><a class="soc" href="https://github.com/wesenheit" rel="me" title="GitHub"><svg class="feather">
+   <use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#github" />
+</svg></a><a class="border"></a></div>
+  <div class="footer-info">
+    2025  <a
+      href="https://github.com/athul/archie">Archie Theme</a> | Built with <a href="https://gohugo.io">Hugo</a>
+  </div>
+</footer>
+
+
+
+</div>
+    </body>
+</html>

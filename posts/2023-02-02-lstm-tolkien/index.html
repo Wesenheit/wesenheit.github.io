@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html><head lang="en">
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>LSTM vs Tolkien - Wesenheit</title><meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="Introduction
+This notebook is greatly inspired by this notebook by G. Negrini. Please check out his website, as he make really good content.
+In original notebook, the Keras library was used. This approach is based on duo Jax &#43; Haiku from DeepMind.
+We will try to distinguish between drug names and Tolkien characters
+using simple LSTM model, surprisingly it isn&rsquo;t as easy as one can think. If you want to challenge yourself, here is popular website with great quiz." />
+	<meta property="og:image" content=""/>
+	<meta property="og:url" content="https://wesenheit.github.io/posts/2023-02-02-lstm-tolkien/">
+  <meta property="og:site_name" content="Wesenheit">
+  <meta property="og:title" content="LSTM vs Tolkien">
+  <meta property="og:description" content="Introduction This notebook is greatly inspired by this notebook by G. Negrini. Please check out his website, as he make really good content. In original notebook, the Keras library was used. This approach is based on duo Jax &#43; Haiku from DeepMind. We will try to distinguish between drug names and Tolkien characters using simple LSTM model, surprisingly it isn’t as easy as one can think. If you want to challenge yourself, here is popular website with great quiz.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2023-02-02T23:20:00+01:00">
+    <meta property="article:modified_time" content="2023-02-02T23:20:00+01:00">
+    <meta property="article:tag" content="NLP">
+    <meta property="article:tag" content="Deep Learning">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="LSTM vs Tolkien">
+  <meta name="twitter:description" content="Introduction This notebook is greatly inspired by this notebook by G. Negrini. Please check out his website, as he make really good content. In original notebook, the Keras library was used. This approach is based on duo Jax &#43; Haiku from DeepMind. We will try to distinguish between drug names and Tolkien characters using simple LSTM model, surprisingly it isn’t as easy as one can think. If you want to challenge yourself, here is popular website with great quiz.">
+
+        <link href="https://wesenheit.github.io/css/fonts.2c2227b81b1970a03e760aa2e6121cd01f87c88586803cbb282aa224720a765f.css" rel="stylesheet">
+	
+
+	
+	<link rel="stylesheet" type="text/css" media="screen" href="https://wesenheit.github.io/css/main.6a0f23ea50fd34b46fee262a5a68e17d458c51a2bc99ba1ba018065de6b180c3.css" />
+		<link id="darkModeStyle" rel="stylesheet" type="text/css" href="https://wesenheit.github.io/css/dark.50b57e12d401420df23965fed157368aba37b76df0ecefd0b1ecd4da664f01a0.css"  disabled /><script type="text/javascript"
+		src="https://wesenheit.github.io/js/MathJax.js"></script>
+		
+		<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			tex2jax: {
+				inlineMath: [['$','$'], ['\\(','\\)']],
+				displayMath: [['$$','$$'], ['\[','\]']],
+				processEscapes: true,
+				processEnvironments: true,
+				skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+				TeX: { equationNumbers: { autoNumber: "AMS" },
+						 extensions: ["AMSmath.js", "AMSsymbols.js"] }
+			}
+		});
+		</script><link rel="stylesheet" href="https://wesenheit.github.io/katex/katex.min.css ">
+		<script defer src="https://wesenheit.github.io/katex/katex.min.js"></script>
+		<script defer src="https://wesenheit.github.io/katex/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+		
+		<script>
+			document.addEventListener("DOMContentLoaded", function() {
+					renderMathInElement(document.body, {
+							delimiters: [
+									{left: "$$", right: "$$", display: true},
+									{left: "$", right: "$", display: false}
+							]
+					});
+			});
+		</script>
+</head>
+<body>
+        <div class="content"><header>
+	<div class="main">
+		<a href="https://wesenheit.github.io/">Wesenheit</a>
+	</div>
+	<nav>
+		
+		<a href="/">Home</a>
+		
+		<a href="/posts">All posts</a>
+		
+		<a href="/about">About</a>
+		
+		<a href="/tags">Tags</a>
+		
+		| <span id="dark-mode-toggle" onclick="toggleTheme()"><svg class="feather">
+   <use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#sun" />
+</svg></span>
+		<script src="https://wesenheit.github.io/js/themetoggle.js"></script>
+		
+	</nav>
+</header>
+
+
+
+<link rel="stylesheet" href="/css/custom.css">
+
+<main>
+  <article>
+    <div class="post-container">
+      
+      <div class="post-content">
+        <div class="title">
+          <h1 class="title">LSTM vs Tolkien</h1>
+          <div class="meta">Posted on Feb 2, 2023</div>
+        </div>
+        
+        <section class="body">
+          <h1 id="introduction">Introduction</h1>
+<p>This notebook is greatly inspired by <a href="https://gbnegrini.com/post/tolkien-character-or-prescription-drug-neural-networks/">this notebook</a> by G. Negrini. Please check out his website, as he make really good content.
+In original notebook, the Keras library was used. This approach is based on duo Jax + <a href="https://dm-haiku.readthedocs.io/en/latest/">Haiku</a> from DeepMind.
+We will try to distinguish between drug names and Tolkien characters
+using simple LSTM model, surprisingly it isn&rsquo;t as easy as one can think. If you want to challenge yourself, here is popular website with <a href="https://antidepressantsortolkien.vercel.app/">great quiz</a>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> jax
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> haiku <span style="color:#66d9ef">as</span> hk
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> pandas <span style="color:#66d9ef">as</span> pd
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> matplotlib.pyplot <span style="color:#66d9ef">as</span> plt
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> seaborn <span style="color:#66d9ef">as</span> sns
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> jax <span style="color:#f92672">import</span> numpy <span style="color:#66d9ef">as</span> jnp
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> numpy <span style="color:#66d9ef">as</span> np
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> sklearn.model_selection <span style="color:#f92672">import</span> train_test_split
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> haiku <span style="color:#f92672">import</span> nets <span style="color:#66d9ef">as</span> nn
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> optax
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> tqdm.notebook <span style="color:#f92672">import</span> tqdm
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> typing <span style="color:#f92672">import</span> Optional
+</span></span><span style="display:flex;"><span>sns<span style="color:#f92672">.</span>set_theme()
+</span></span><span style="display:flex;"><span>np<span style="color:#f92672">.</span>random<span style="color:#f92672">.</span>seed(<span style="color:#ae81ff">42</span>)
+</span></span></code></pre></div><h1 id="data">Data</h1>
+<p>Fortunately following the original notebook we can find a great database with tolkien names on <a href="https://www.behindthename.com">www.behindthename.com</a>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>raw_tolkien_chars <span style="color:#f92672">=</span> pd<span style="color:#f92672">.</span>read_html(<span style="color:#e6db74">&#39;https://www.behindthename.com/namesakes/list/tolkien/name&#39;</span>)
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>raw_tolkien_chars[<span style="color:#ae81ff">2</span>]<span style="color:#f92672">.</span>iloc[<span style="color:#ae81ff">200</span>:<span style="color:#ae81ff">210</span>,:]
+</span></span></code></pre></div><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Name</th>
+      <th>Gender</th>
+      <th>Details</th>
+      <th>Total</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>200</th>
+      <td>Damrod</td>
+      <td>m</td>
+      <td>1 character</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>201</th>
+      <td>Déagol</td>
+      <td>m</td>
+      <td>1 character</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>202</th>
+      <td>Denethor</td>
+      <td>m</td>
+      <td>3 characters</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>203</th>
+      <td>Déor</td>
+      <td>m</td>
+      <td>1 character</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>204</th>
+      <td>Déorwine</td>
+      <td>m</td>
+      <td>1 character</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>205</th>
+      <td>Derufin</td>
+      <td>m</td>
+      <td>1 character</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>206</th>
+      <td>Dervorin</td>
+      <td>m</td>
+      <td>1 character</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>207</th>
+      <td>Diamond</td>
+      <td>f</td>
+      <td>1 character</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>208</th>
+      <td>Dina</td>
+      <td>f</td>
+      <td>1 character</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>209</th>
+      <td>Dinodas</td>
+      <td>m</td>
+      <td>1 character</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<p>We can see not only names contain non-ASCII characters so we need to preprocess our data. We will lower all characters and replace every character to an ASCII base.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>tolkien<span style="color:#f92672">=</span>np<span style="color:#f92672">.</span>array(list(map(<span style="color:#66d9ef">lambda</span> x:x
+</span></span><span style="display:flex;"><span>                          <span style="color:#f92672">.</span>replace(<span style="color:#e6db74">&#34;-&#34;</span>,<span style="color:#e6db74">&#34;&#34;</span>)
+</span></span><span style="display:flex;"><span>                          <span style="color:#f92672">.</span>encode(<span style="color:#e6db74">&#34;ascii&#34;</span>,<span style="color:#e6db74">&#34;ignore&#34;</span>)
+</span></span><span style="display:flex;"><span>                          <span style="color:#f92672">.</span>lower(),raw_tolkien_chars[<span style="color:#ae81ff">2</span>][<span style="color:#e6db74">&#34;Name&#34;</span>]<span style="color:#f92672">.</span>values)))
+</span></span></code></pre></div><p>Following original notebook we will use <a href="https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=medguide.page">medication guide</a> from US Food &amp; Drug Administration and use similar preprocessing as before.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>raw_medication_guide <span style="color:#f92672">=</span> pd<span style="color:#f92672">.</span>read_csv(<span style="color:#e6db74">&#39;Medication Guides.csv&#39;</span>)
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>id<span style="color:#f92672">=</span>np<span style="color:#f92672">.</span>random<span style="color:#f92672">.</span>randint(<span style="color:#ae81ff">0</span>,len(raw_medication_guide[<span style="color:#e6db74">&#34;Drug Name&#34;</span>]<span style="color:#f92672">.</span>unique()),size<span style="color:#f92672">=</span><span style="color:#ae81ff">10</span>)
+</span></span><span style="display:flex;"><span>raw_medication_guide[<span style="color:#e6db74">&#34;Drug Name&#34;</span>]<span style="color:#f92672">.</span>unique()[id]
+</span></span></code></pre></div><pre><code>array(['Bydureon Pen', 'Optimark in Plastic Container', 'Hulio',
+       'Caprelsa', 'Avinza', 'Voltaren', 'Adderall 15', 'Technivie',
+       'Cipro XR', 'Plavix'], dtype=object)
+</code></pre>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>drugs<span style="color:#f92672">=</span>np<span style="color:#f92672">.</span>unique(np<span style="color:#f92672">.</span>array(list(map(<span style="color:#66d9ef">lambda</span> x:x<span style="color:#f92672">.</span>split()[<span style="color:#ae81ff">0</span>]
+</span></span><span style="display:flex;"><span>                                  <span style="color:#f92672">.</span>replace(<span style="color:#e6db74">&#34;-&#34;</span>,<span style="color:#e6db74">&#34;&#34;</span>)<span style="color:#f92672">.</span>replace(<span style="color:#e6db74">&#34;.&#34;</span>,<span style="color:#e6db74">&#34;&#34;</span>)
+</span></span><span style="display:flex;"><span>                                  <span style="color:#f92672">.</span>encode(<span style="color:#e6db74">&#34;ascii&#34;</span>,<span style="color:#e6db74">&#34;ignore&#34;</span>)
+</span></span><span style="display:flex;"><span>                                  <span style="color:#f92672">.</span>lower(),raw_medication_guide[<span style="color:#e6db74">&#34;Drug Name&#34;</span>]
+</span></span><span style="display:flex;"><span>                                  <span style="color:#f92672">.</span>drop_duplicates()))))
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>print(len(tolkien),len(drugs))
+</span></span></code></pre></div><pre><code>746 674
+</code></pre>
+<p>After preprocessing we are left with $746$ unique Tolkien names and $674$ unique drug names so we have rather balanced dataset.</p>
+<p>There are few approaches we can use to preprocess data. One can replace each character by corresponding integer number which should be further preprocessed
+either by one-hot encoding or embedding into high-dimensional space. Because we have only 26 characters we will follow original approach and one-hot encode our values.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">tokenize</span>(string):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> jnp<span style="color:#f92672">.</span>array(list(map(<span style="color:#66d9ef">lambda</span> x:x<span style="color:#f92672">-</span>ord(<span style="color:#e6db74">&#34;a&#34;</span>),string)))
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>X_train<span style="color:#f92672">=</span>np<span style="color:#f92672">.</span>concatenate((tolkien,drugs))
+</span></span><span style="display:flex;"><span>Y_train<span style="color:#f92672">=</span>jnp<span style="color:#f92672">.</span>concatenate((jnp<span style="color:#f92672">.</span>zeros(tolkien<span style="color:#f92672">.</span>shape[<span style="color:#ae81ff">0</span>]),jnp<span style="color:#f92672">.</span>ones(drugs<span style="color:#f92672">.</span>shape[<span style="color:#ae81ff">0</span>])))
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>X_train<span style="color:#f92672">=</span>list(map(tokenize,X_train))
+</span></span></code></pre></div><p>Finally we split train and validation data using sklearn with ratio $$0.8$$.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>X_train,X_val,Y_train,Y_val<span style="color:#f92672">=</span>train_test_split(X_train,Y_train,train_size<span style="color:#f92672">=</span><span style="color:#ae81ff">0.8</span>)
+</span></span></code></pre></div><h1 id="model">Model</h1>
+<p>Now we implement simple LSTM model with Haiku. We have one layer of LSTM with dimension we specify followed by one
+dense layer with dropout. Instead of simple classification head or multiclassification task we will use
+two binary classification heads for each class. We will also model logits during training as we will use the fact that binary cross-entropy have simple when modeling logits instead of probabilities.
+Instead of using hk.dynamic_unroll as typically we will use hk.scan which is thin wrapper around jax.lax.scan with additional parameter unroll
+allowing to choose option in between static unroll and full dynamic unroll. Between layers we use GeLU activation instead of ReLU.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">reverse</span>(t): <span style="color:#75715e">#we need to reverse our sequence</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#as scan needs function with signature F(carry,x)</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> t[<span style="color:#ae81ff">1</span>],t[<span style="color:#ae81ff">0</span>]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Model_LSTM</span>(hk<span style="color:#f92672">.</span>Module):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self,size: int
+</span></span><span style="display:flex;"><span>                 ,p: float
+</span></span><span style="display:flex;"><span>                 ,unroll: Optional[int]<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>                ) <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>        super()<span style="color:#f92672">.</span><span style="color:#a6e22e">__init__</span>()
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>size <span style="color:#f92672">=</span> size
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>p <span style="color:#f92672">=</span> p
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>unroll <span style="color:#f92672">=</span> unroll
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>lstm <span style="color:#f92672">=</span> hk<span style="color:#f92672">.</span>LSTM(self<span style="color:#f92672">.</span>size)
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>linear <span style="color:#f92672">=</span> hk<span style="color:#f92672">.</span>Linear(<span style="color:#ae81ff">2</span>)
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>drop <span style="color:#f92672">=</span> hk<span style="color:#f92672">.</span>dropout
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__call__</span>(self,x:jnp<span style="color:#f92672">.</span>array,key,testing:bool) <span style="color:#f92672">-&gt;</span> jnp<span style="color:#f92672">.</span>array:
+</span></span><span style="display:flex;"><span>        state <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>lstm<span style="color:#f92672">.</span>initial_state(x<span style="color:#f92672">.</span>shape[<span style="color:#ae81ff">1</span>])
+</span></span><span style="display:flex;"><span>        state,x <span style="color:#f92672">=</span> hk<span style="color:#f92672">.</span>scan(<span style="color:#66d9ef">lambda</span> a,b:reverse(self<span style="color:#f92672">.</span>lstm(b,a)),
+</span></span><span style="display:flex;"><span>                          state,x,unroll<span style="color:#f92672">=</span>self<span style="color:#f92672">.</span>unroll)
+</span></span><span style="display:flex;"><span>        x_final <span style="color:#f92672">=</span> jax<span style="color:#f92672">.</span>nn<span style="color:#f92672">.</span>gelu(x[<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>,:,:])
+</span></span><span style="display:flex;"><span>        x <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>linear(x_final)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> testing:
+</span></span><span style="display:flex;"><span>            x <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>drop(key,self<span style="color:#f92672">.</span>p,x)
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> x
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> jax<span style="color:#f92672">.</span>nn<span style="color:#f92672">.</span>sigmoid(x)
+</span></span></code></pre></div><p>Now let&rsquo;s specify model parameters and write down the training loop we will use to train our model. We use LSTM with
+dimensionality $8$ and dropout $0.05$.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>lstm<span style="color:#f92672">=</span>hk<span style="color:#f92672">.</span>transform(<span style="color:#66d9ef">lambda</span> x,key,testing<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>: Model_LSTM(<span style="color:#ae81ff">8</span>,<span style="color:#ae81ff">0.05</span>)(x,key,testing))
+</span></span><span style="display:flex;"><span>key<span style="color:#f92672">=</span>hk<span style="color:#f92672">.</span>PRNGSequence(<span style="color:#ae81ff">42</span>)
+</span></span><span style="display:flex;"><span>params<span style="color:#f92672">=</span>lstm<span style="color:#f92672">.</span>init(next(key),x<span style="color:#f92672">=</span>jnp<span style="color:#f92672">.</span>ones([<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">26</span>]),key<span style="color:#f92672">=</span>next(key))
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#dummy varible to specifiy dimensionality</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">train</span>(lstm,num,params,X_train,Y_train,batch_size,save<span style="color:#f92672">=</span><span style="color:#ae81ff">2</span>):
+</span></span><span style="display:flex;"><span>    opt<span style="color:#f92672">=</span>optax<span style="color:#f92672">.</span>adam(learning_rate<span style="color:#f92672">=</span><span style="color:#ae81ff">2e-4</span>)
+</span></span><span style="display:flex;"><span>    opt_state<span style="color:#f92672">=</span>opt<span style="color:#f92672">.</span>init(params)
+</span></span><span style="display:flex;"><span>    seq<span style="color:#f92672">=</span>hk<span style="color:#f92672">.</span>PRNGSequence(<span style="color:#ae81ff">42</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@jax.jit</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">loss_binary</span>(params,X,Y,key):
+</span></span><span style="display:flex;"><span>        key1,key2<span style="color:#f92672">=</span>jax<span style="color:#f92672">.</span>random<span style="color:#f92672">.</span>split(key)
+</span></span><span style="display:flex;"><span>        Y_pred<span style="color:#f92672">=</span>lstm<span style="color:#f92672">.</span>apply(rng<span style="color:#f92672">=</span>key1,params<span style="color:#f92672">=</span>params,x<span style="color:#f92672">=</span>X,key<span style="color:#f92672">=</span>key2)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> optax<span style="color:#f92672">.</span>sigmoid_binary_cross_entropy(Y_pred,Y)<span style="color:#f92672">.</span>sum()
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@jax.jit</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">update</span>(opt_state, params, X, Y,key):
+</span></span><span style="display:flex;"><span>        l, grads <span style="color:#f92672">=</span> jax<span style="color:#f92672">.</span>value_and_grad(loss_binary)(params, X, Y,key)
+</span></span><span style="display:flex;"><span>        updates, opt_state <span style="color:#f92672">=</span> opt<span style="color:#f92672">.</span>update(grads, opt_state, params)
+</span></span><span style="display:flex;"><span>        params <span style="color:#f92672">=</span> optax<span style="color:#f92672">.</span>apply_updates(params, updates)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> l, params, opt_state
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@jax.jit</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">acc_t</span>(params,X,Y,key):
+</span></span><span style="display:flex;"><span>        l<span style="color:#f92672">=</span>lstm<span style="color:#f92672">.</span>apply(rng<span style="color:#f92672">=</span>key,params<span style="color:#f92672">=</span>params,x<span style="color:#f92672">=</span>X,key<span style="color:#f92672">=</span>key,testing<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span><span style="display:flex;"><span>        Y_pred<span style="color:#f92672">=</span>jnp<span style="color:#f92672">.</span>argmax(l,axis<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>)<span style="color:#f92672">.</span>reshape(<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> jnp<span style="color:#f92672">.</span>sum(Y_pred<span style="color:#f92672">==</span>Y)
+</span></span><span style="display:flex;"><span>    loss_arr<span style="color:#f92672">=</span>np<span style="color:#f92672">.</span>zeros(num<span style="color:#f92672">//</span>save)
+</span></span><span style="display:flex;"><span>    acc_arr<span style="color:#f92672">=</span>np<span style="color:#f92672">.</span>zeros(num<span style="color:#f92672">//</span>save)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> N <span style="color:#f92672">in</span> (range(num)):
+</span></span><span style="display:flex;"><span>        idx<span style="color:#f92672">=</span>np<span style="color:#f92672">.</span>random<span style="color:#f92672">.</span>permutation(len(X_train))
+</span></span><span style="display:flex;"><span>        loss<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span><span style="color:#f92672">/</span>len(X_train)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> id,i <span style="color:#f92672">in</span> enumerate(idx):
+</span></span><span style="display:flex;"><span>            X<span style="color:#f92672">=</span>jax<span style="color:#f92672">.</span>nn<span style="color:#f92672">.</span>one_hot(X_train[id],num_classes<span style="color:#f92672">=</span><span style="color:#ae81ff">26</span>)<span style="color:#f92672">.</span>reshape(len(X_train[id]),<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">26</span>)
+</span></span><span style="display:flex;"><span>            Y<span style="color:#f92672">=</span>jax<span style="color:#f92672">.</span>nn<span style="color:#f92672">.</span>one_hot(Y_train[id],num_classes<span style="color:#f92672">=</span><span style="color:#ae81ff">2</span>)
+</span></span><span style="display:flex;"><span>            l,params,opt_state<span style="color:#f92672">=</span>update(opt_state,params,X,Y,next(seq))
+</span></span><span style="display:flex;"><span>            loss<span style="color:#f92672">+=</span>l
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> N<span style="color:#f92672">%</span>save<span style="color:#f92672">==</span><span style="color:#ae81ff">0</span>:
+</span></span><span style="display:flex;"><span>            acc<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span> 
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">for</span> X,Y <span style="color:#f92672">in</span> zip(X_val,Y_val):
+</span></span><span style="display:flex;"><span>                X<span style="color:#f92672">=</span>jax<span style="color:#f92672">.</span>nn<span style="color:#f92672">.</span>one_hot(X,num_classes<span style="color:#f92672">=</span><span style="color:#ae81ff">26</span>)<span style="color:#f92672">.</span>reshape(len(X),<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">26</span>)
+</span></span><span style="display:flex;"><span>                acc<span style="color:#f92672">+=</span>acc_t(params,X,Y,next(seq))
+</span></span><span style="display:flex;"><span>            acc<span style="color:#f92672">/=</span>len(X_val)
+</span></span><span style="display:flex;"><span>            print(<span style="color:#e6db74">&#39;epoche:</span><span style="color:#e6db74">{0:}</span><span style="color:#e6db74"> ,loss: </span><span style="color:#e6db74">{1:.2f}</span><span style="color:#e6db74">, accuracy: </span><span style="color:#e6db74">{2:.3f}</span><span style="color:#e6db74">&#39;</span><span style="color:#f92672">.</span>format(N,loss,acc))
+</span></span><span style="display:flex;"><span>            acc_arr[N<span style="color:#f92672">//</span>save]<span style="color:#f92672">=</span>acc
+</span></span><span style="display:flex;"><span>            loss_arr[N<span style="color:#f92672">//</span>save]<span style="color:#f92672">=</span>loss
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> params,acc_arr,loss_arr
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>key <span style="color:#f92672">=</span> hk<span style="color:#f92672">.</span>PRNGSequence(<span style="color:#ae81ff">42</span>)
+</span></span><span style="display:flex;"><span>Num <span style="color:#f92672">=</span> <span style="color:#ae81ff">50</span>
+</span></span><span style="display:flex;"><span>save <span style="color:#f92672">=</span> <span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>params <span style="color:#f92672">=</span> lstm<span style="color:#f92672">.</span>init(next(key),x<span style="color:#f92672">=</span>jnp<span style="color:#f92672">.</span>ones([<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">26</span>]),key<span style="color:#f92672">=</span>next(key))
+</span></span><span style="display:flex;"><span>params,acc_arr,loss_arr <span style="color:#f92672">=</span> train(lstm,Num,params,X_train,Y_train,<span style="color:#ae81ff">1</span>,save<span style="color:#f92672">=</span>save)
+</span></span></code></pre></div><pre><code>epoche:0 ,loss: 1571.16, accuracy: 0.602
+epoche:2 ,loss: 1443.97, accuracy: 0.729
+epoche:4 ,loss: 1248.24, accuracy: 0.746
+epoche:6 ,loss: 1138.09, accuracy: 0.771
+epoche:8 ,loss: 1053.81, accuracy: 0.789
+epoche:10 ,loss: 998.06, accuracy: 0.799
+epoche:12 ,loss: 944.48, accuracy: 0.813
+epoche:14 ,loss: 911.60, accuracy: 0.806
+epoche:16 ,loss: 899.01, accuracy: 0.810
+epoche:18 ,loss: 887.94, accuracy: 0.824
+epoche:20 ,loss: 867.32, accuracy: 0.820
+epoche:22 ,loss: 845.32, accuracy: 0.827
+epoche:24 ,loss: 839.61, accuracy: 0.831
+epoche:26 ,loss: 821.87, accuracy: 0.827
+epoche:28 ,loss: 816.82, accuracy: 0.831
+epoche:30 ,loss: 806.93, accuracy: 0.827
+epoche:32 ,loss: 801.71, accuracy: 0.827
+epoche:34 ,loss: 790.72, accuracy: 0.827
+epoche:36 ,loss: 782.85, accuracy: 0.820
+epoche:38 ,loss: 778.10, accuracy: 0.827
+epoche:40 ,loss: 756.51, accuracy: 0.838
+epoche:42 ,loss: 745.02, accuracy: 0.835
+epoche:44 ,loss: 754.22, accuracy: 0.831
+epoche:46 ,loss: 746.22, accuracy: 0.827
+epoche:48 ,loss: 731.05, accuracy: 0.827
+</code></pre>
+<p>Now it&rsquo;s time to show what we have learned.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>fig,[ax1,ax2] <span style="color:#f92672">=</span> plt<span style="color:#f92672">.</span>subplots(<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>,figsize<span style="color:#f92672">=</span>(<span style="color:#ae81ff">10</span>,<span style="color:#ae81ff">5</span>))
+</span></span><span style="display:flex;"><span>ax1<span style="color:#f92672">.</span>plot(np<span style="color:#f92672">.</span>arange(<span style="color:#ae81ff">0</span>,Num,save),loss_arr)
+</span></span><span style="display:flex;"><span>ax1<span style="color:#f92672">.</span>set_xlabel(<span style="color:#e6db74">&#34;epoche&#34;</span>)
+</span></span><span style="display:flex;"><span>ax1<span style="color:#f92672">.</span>set_ylabel(<span style="color:#e6db74">&#34;loss&#34;</span>)
+</span></span><span style="display:flex;"><span>ax2<span style="color:#f92672">.</span>plot(np<span style="color:#f92672">.</span>arange(<span style="color:#ae81ff">0</span>,Num,save),acc_arr)
+</span></span><span style="display:flex;"><span>ax2<span style="color:#f92672">.</span>set_xlabel(<span style="color:#e6db74">&#34;epoche&#34;</span>)
+</span></span><span style="display:flex;"><span>ax2<span style="color:#f92672">.</span>set_ylabel(<span style="color:#e6db74">&#34;accuracy&#34;</span>)
+</span></span><span style="display:flex;"><span>plt<span style="color:#f92672">.</span>suptitle(<span style="color:#e6db74">&#34;LSTM model&#34;</span>)
+</span></span><span style="display:flex;"><span>plt<span style="color:#f92672">.</span>tight_layout()
+</span></span></code></pre></div><img src="LSTM_with_Haiku_26_0.png" class="invert-on-dark" alt="loss curve">
+<p>We can see that after $\sim 20$ epochs we reach maximum accuracy despite decreasing loss as we probably hit limit of our model but to be honest I think it&rsquo;s really impressing behaviour as net outperforms me by far when it comes to
+name recognition.</p>
+<p>Now let&rsquo;s investigate the confusion matrix for our validation set followed by the classification report.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> sklearn.metrics <span style="color:#f92672">import</span> confusion_matrix,classification_report
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@jax.jit</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">predict</span>(X,key):
+</span></span><span style="display:flex;"><span>    key1,key2<span style="color:#f92672">=</span>jax<span style="color:#f92672">.</span>random<span style="color:#f92672">.</span>split(key)
+</span></span><span style="display:flex;"><span>    X<span style="color:#f92672">=</span>jax<span style="color:#f92672">.</span>nn<span style="color:#f92672">.</span>one_hot(X,num_classes<span style="color:#f92672">=</span><span style="color:#ae81ff">26</span>)<span style="color:#f92672">.</span>reshape(<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">26</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> jnp<span style="color:#f92672">.</span>argmax(lstm<span style="color:#f92672">.</span>apply(x<span style="color:#f92672">=</span>X,rng<span style="color:#f92672">=</span>key2,key<span style="color:#f92672">=</span>key1,params<span style="color:#f92672">=</span>params),axis<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>predictions<span style="color:#f92672">=</span>[]
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> X <span style="color:#f92672">in</span> X_val:
+</span></span><span style="display:flex;"><span>    predictions<span style="color:#f92672">.</span>append(float(predict(X,next(key))))
+</span></span><span style="display:flex;"><span>matrix<span style="color:#f92672">=</span>confusion_matrix(Y_val,predictions)
+</span></span><span style="display:flex;"><span>sns<span style="color:#f92672">.</span>heatmap(matrix,xticklabels<span style="color:#f92672">=</span>[<span style="color:#e6db74">&#34;Tolkien&#34;</span>,<span style="color:#e6db74">&#34;Drug&#34;</span>],yticklabels<span style="color:#f92672">=</span>[<span style="color:#e6db74">&#34;Tolkien&#34;</span>,<span style="color:#e6db74">&#34;Drug&#34;</span>],annot<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>,fmt<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;d&#34;</span>)
+</span></span></code></pre></div><img src="LSTM_with_Haiku_29_1.png" class="invert-on-dark" alt="confusion_matrix">
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>print(classification_report(Y_val, predictions, target_names<span style="color:#f92672">=</span>[<span style="color:#e6db74">&#39;Drug&#39;</span>, <span style="color:#e6db74">&#39;Tolkien&#39;</span>]))
+</span></span></code></pre></div><pre><code>              precision    recall  f1-score   support
+
+        Drug       0.85      0.80      0.82       143
+     Tolkien       0.81      0.85      0.83       141
+
+    accuracy                           0.83       284
+   macro avg       0.83      0.83      0.83       284
+weighted avg       0.83      0.83      0.83       284
+</code></pre>
+<p>We see that drugs prediction have slightly better precision while Tolkien names have better recall.</p>
+
+        </section>
+        <div class="post-tags">
+          
+          
+          <nav class="nav tags">
+            <ul class="tags">
+              
+              <li><a href="/tags/nlp">NLP</a></li>
+              
+              <li><a href="/tags/deep-learning">Deep Learning</a></li>
+              
+            </ul>
+          </nav>
+          
+          
+        </div>
+      </div>
+
+      
+      
+    </div>
+
+    <div id="disqus_thread"></div>
+<script type="text/javascript">
+    (function () {
+        
+        
+        if (window.location.hostname == "localhost")
+            return;
+
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        var disqus_shortname = 'yourDisqusShortname';
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+        Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</article>
+</main>
+<footer>
+  <div style="display:flex"><a class="soc" href="https://github.com/wesenheit" rel="me" title="GitHub"><svg class="feather">
+   <use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#github" />
+</svg></a><a class="border"></a></div>
+  <div class="footer-info">
+    2025  <a
+      href="https://github.com/athul/archie">Archie Theme</a> | Built with <a href="https://gohugo.io">Hugo</a>
+  </div>
+</footer>
+
+
+
+</div>
+    </body>
+</html>
