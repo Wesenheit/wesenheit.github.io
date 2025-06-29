@@ -21,6 +21,10 @@ name = "GitHub"
 icon = "github"
 url = "https://github.com/wesenheit"
 
+[[params.social]]
+name = "Twitter"
+icon = "twitter"
+url = "https://x.com/mrKapustaa"
 
 [[menu.main]]
 name = "Home"
