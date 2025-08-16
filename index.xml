@@ -1,19 +1,33 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Wesenheit</title>
+    <title>Hi there! on Wesenheit</title>
     <link>https://wesenheit.github.io/</link>
-    <description>Recent content on Wesenheit</description>
+    <description>Recent content in Hi there! on Wesenheit</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 23 Jun 2025 22:10:25 +0200</lastBuildDate>
+    <lastBuildDate>Sun, 20 Jul 2025 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://wesenheit.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>IrisML - Neural Posterior Estimation for Spectral Energy Distribution fitting</title>
+      <link>https://wesenheit.github.io/publications/irisml/</link>
+      <pubDate>Sun, 20 Jul 2025 00:00:00 +0000</pubDate>
+      <guid>https://wesenheit.github.io/publications/irisml/</guid>
+      <description>&lt;ul&gt;&#xA;&lt;li&gt;Authors: Mateusz Kapusta&lt;/li&gt;&#xA;&lt;li&gt;Journal: &lt;strong&gt;ICML 2025&lt;/strong&gt;: Machine Learning for Astrophysics workshop&#xA;&lt;a href=&#34;https://ml4astro.github.io/icml2025/assets/camera_ready/17_IrisML_Neural_Posterior_Est.pdf&#34;&gt;Link&lt;/a&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;Fast and reliable real-time inference for astronomical data? Now possible with Simulation-Based Inference.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>HST pre-imaging of a free-floating planet candidate microlensing event</title>
+      <link>https://wesenheit.github.io/publications/hubbleffp/</link>
+      <pubDate>Tue, 01 Jul 2025 00:00:00 +0000</pubDate>
+      <guid>https://wesenheit.github.io/publications/hubbleffp/</guid>
+      <description>&lt;ul&gt;&#xA;&lt;li&gt;Authors: Mateusz Kapusta, Przemysław Mróz, OGLE and KMTNet collaborations.&lt;/li&gt;&#xA;&lt;li&gt;Journal: Astronomy &amp;amp; Astrophysics&#xA;&lt;a href=&#34;https://arxiv.org/abs/2507.01109&#34;&gt;Link&lt;/a&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;Are free-floating planets really free-floating or bound on wider orbits?&lt;/p&gt;</description>
+    </item>
     <item>
       <title>About</title>
       <link>https://wesenheit.github.io/about/</link>
       <pubDate>Mon, 23 Jun 2025 22:10:25 +0200</pubDate>
       <guid>https://wesenheit.github.io/about/</guid>
-      <description>&lt;p&gt;My name is Mateusz Kapusta, I am currently a student at the Warsaw University, Faculty of Physics. Most of my scientific life was centered around&#xA;the software development for various scientific tasks, mostly from the field of Bayesian modelling applied to astronomical data and High-Performance Computing for CFD. During my life a greatly benefited from the strong mathematics foundations developed at my high school, paired&#xA;with substential training in Math/CS as a part of the Collage of Interdisciplinary Studies at the University of Warsaw.&lt;/p&gt;</description>
+      <description>&lt;p&gt;I am a physics student at the University of Warsaw. My scientific career has been&#xA;largely focused on developing software for a variety of scientific tasks, primarily in Bayesian modeling and High-Performance Computing (HPC).&lt;/p&gt;&#xA;&lt;p&gt;In high school, I competed in several scientific Olympiads, where I had the honor of&#xA;representing my country at the International Olympiad on Astronomy and Astrophysics.&#xA;Today, I remain committed to this beautiful Olympic tradition and serve as a judge&#xA;in various competitions.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Approximate Bayesian Computation with Wrocław trams</title>
@@ -23,11 +37,18 @@
       <description>&lt;h2 id=&#34;introduction&#34;&gt;Introduction&lt;/h2&gt;&#xA;&lt;p&gt;Recently, I presented some results from the field of Simulation-Based Inference at the Statistical Journal Club at the Astronomical Observatory. While modern neural networks allow the creation of some&#xA;incredible models that allow for the Likelihood Free Inference (LFI), there are also some more old-school examples from the field of statistics. Those were usually labeled&#xA;as the Approximate Bayesian Computation (ABC) methods. Here, I would like to write something about the classical implementation and apply it to one of my favorite&#xA;problems known as the German tanks problem (although here there will be trams).&lt;/p&gt;</description>
     </item>
     <item>
+      <title>Search for dormant black holes in the OGLE data</title>
+      <link>https://wesenheit.github.io/publications/dormant/</link>
+      <pubDate>Mon, 01 Jan 2024 00:00:00 +0000</pubDate>
+      <guid>https://wesenheit.github.io/publications/dormant/</guid>
+      <description>&lt;ul&gt;&#xA;&lt;li&gt;Authors: Mateusz Kapusta, Przemek Mróz&lt;/li&gt;&#xA;&lt;li&gt;Journal: Acta Astronomica&#xA;&lt;a href=&#34;https://arxiv.org/abs/2401.11293&#34;&gt;Link&lt;/a&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;Are there any black holes that are dormant (no X-ray signature) and reside in ellipsoidal binaries?&#xA;Spoiler: probably not.&lt;/p&gt;</description>
+    </item>
+    <item>
       <title>GMVAE clustering applied to RNA sequencing</title>
       <link>https://wesenheit.github.io/posts/2023-03-19-gmvae-clustering-applied-to-rna-sequencing/</link>
       <pubDate>Sun, 19 Mar 2023 15:00:00 +0100</pubDate>
       <guid>https://wesenheit.github.io/posts/2023-03-19-gmvae-clustering-applied-to-rna-sequencing/</guid>
-      <description>&lt;h2 id=&#34;introduction&#34;&gt;Introduction&lt;/h2&gt;&#xA;&lt;p&gt;One of many classical tasks of machine learning is clustering, based on the data one would like to distinguish some clusters.&#xA;There are many classical approaches to clustering, the most notable ones include: K-means, GMM (Gaussian Mixture Model) trained with the EM algorithm, and DBSCAN.&#xA;While each of those algorithms is widely used in research and industry,&#xA;all of them try to cluster the data using its original representation and mostly fail in the case of hidden similarity between observations.\&#xA;In this post, I present a GMM+VAE deep learning architecture, which will be used to cluster the data based on a learned embedding of the data.&#xA;The clustering model is based on &lt;a href=&#34;https://arxiv.org/abs/1611.02648&#34;&gt;this paper&lt;/a&gt;, while application to RNA sequencing data is based on the work that I performed during my studies at the Warsaw University.&#xA;The original project with a solution can be found in a related &lt;a href=&#34;https://github.com/Wesenheit/SAD2-22W/tree/main/Project1&#34;&gt;GitHub repository&lt;/a&gt;.&#xA;The dataset used in the study was taken from the &lt;a href=&#34;https://openproblems.bio/competitions/neurips_2021/&#34;&gt;NeuroIPS 2021&lt;/a&gt; competition. In this blog, we will tackle the joint&#xA;embedding part of the competition. We will try to embed biological information in an unsupervised manner and at the same time reduce the impact of batch effect on&#xA;the model performance.&lt;/p&gt;</description>
+      <description>&lt;p&gt;Traditional clustering methods typically rely on the raw, observed features of data.&#xA;However, we can often achieve better results by using Variational Autoencoders (VAEs)&#xA;to create an embedded representation of the data first.&lt;/p&gt;</description>
     </item>
     <item>
       <title>LSTM vs Tolkien</title>

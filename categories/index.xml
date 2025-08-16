@@ -6,6 +6,21 @@
     <description>Recent content in Categories on Wesenheit</description>
     <generator>Hugo</generator>
     <language>en-us</language>
+    <lastBuildDate>Sun, 20 Jul 2025 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://wesenheit.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Astrophysics</title>
+      <link>https://wesenheit.github.io/categories/astrophysics/</link>
+      <pubDate>Sun, 20 Jul 2025 00:00:00 +0000</pubDate>
+      <guid>https://wesenheit.github.io/categories/astrophysics/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Machine Learning</title>
+      <link>https://wesenheit.github.io/categories/machine-learning/</link>
+      <pubDate>Sun, 20 Jul 2025 00:00:00 +0000</pubDate>
+      <guid>https://wesenheit.github.io/categories/machine-learning/</guid>
+      <description></description>
+    </item>
   </channel>
 </rss>
