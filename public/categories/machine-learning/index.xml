@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Machine Learning on Wesenheit</title>
-    <link>http://localhost:1313/categories/machine-learning/</link>
+    <link>https://wesenheit.github.io/categories/machine-learning/</link>
     <description>Recent content in Machine Learning on Wesenheit</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <lastBuildDate>Sun, 20 Jul 2025 00:00:00 +0000</lastBuildDate>
-    <atom:link href="http://localhost:1313/categories/machine-learning/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://wesenheit.github.io/categories/machine-learning/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>IrisML - Neural Posterior Estimation for Spectral Energy Distribution fitting</title>
-      <link>http://localhost:1313/publications/irisml/</link>
+      <link>https://wesenheit.github.io/publications/irisml/</link>
       <pubDate>Sun, 20 Jul 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/publications/irisml/</guid>
+      <guid>https://wesenheit.github.io/publications/irisml/</guid>
       <description>&lt;ul&gt;&#xA;&lt;li&gt;Authors: Mateusz Kapusta&lt;/li&gt;&#xA;&lt;li&gt;Journal: &lt;strong&gt;ICML 2025&lt;/strong&gt;: Machine Learning for Astrophysics workshop&#xA;&lt;a href=&#34;https://ml4astro.github.io/icml2025/assets/camera_ready/17_IrisML_Neural_Posterior_Est.pdf&#34;&gt;Link&lt;/a&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;Fast and reliable real-time inference for astronomical data? Now possible with Simulation-Based Inference.&lt;/p&gt;</description>
     </item>
   </channel>

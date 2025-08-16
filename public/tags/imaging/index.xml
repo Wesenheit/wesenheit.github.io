@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Imaging on Wesenheit</title>
-    <link>http://localhost:1313/tags/imaging/</link>
+    <link>https://wesenheit.github.io/tags/imaging/</link>
     <description>Recent content in Imaging on Wesenheit</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <lastBuildDate>Tue, 01 Jul 2025 00:00:00 +0000</lastBuildDate>
-    <atom:link href="http://localhost:1313/tags/imaging/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://wesenheit.github.io/tags/imaging/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>HST pre-imaging of a free-floating planet candidate microlensing event</title>
-      <link>http://localhost:1313/publications/hubbleffp/</link>
+      <link>https://wesenheit.github.io/publications/hubbleffp/</link>
       <pubDate>Tue, 01 Jul 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/publications/hubbleffp/</guid>
+      <guid>https://wesenheit.github.io/publications/hubbleffp/</guid>
       <description>&lt;ul&gt;&#xA;&lt;li&gt;Authors: Mateusz Kapusta, Przemysław Mróz, OGLE and KMTNet collaborations.&lt;/li&gt;&#xA;&lt;li&gt;Journal: Astronomy &amp;amp; Astrophysics&#xA;&lt;a href=&#34;https://arxiv.org/abs/2507.01109&#34;&gt;Link&lt;/a&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;Are free-floating planets really free-floating or bound on wider orbits?&lt;/p&gt;</description>
     </item>
   </channel>

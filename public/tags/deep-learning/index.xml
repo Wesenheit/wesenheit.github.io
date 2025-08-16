@@ -2,31 +2,31 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Deep Learning on Wesenheit</title>
-    <link>http://localhost:1313/tags/deep-learning/</link>
+    <link>https://wesenheit.github.io/tags/deep-learning/</link>
     <description>Recent content in Deep Learning on Wesenheit</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <lastBuildDate>Sun, 20 Jul 2025 00:00:00 +0000</lastBuildDate>
-    <atom:link href="http://localhost:1313/tags/deep-learning/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://wesenheit.github.io/tags/deep-learning/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>IrisML - Neural Posterior Estimation for Spectral Energy Distribution fitting</title>
-      <link>http://localhost:1313/publications/irisml/</link>
+      <link>https://wesenheit.github.io/publications/irisml/</link>
       <pubDate>Sun, 20 Jul 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/publications/irisml/</guid>
+      <guid>https://wesenheit.github.io/publications/irisml/</guid>
       <description>&lt;ul&gt;&#xA;&lt;li&gt;Authors: Mateusz Kapusta&lt;/li&gt;&#xA;&lt;li&gt;Journal: &lt;strong&gt;ICML 2025&lt;/strong&gt;: Machine Learning for Astrophysics workshop&#xA;&lt;a href=&#34;https://ml4astro.github.io/icml2025/assets/camera_ready/17_IrisML_Neural_Posterior_Est.pdf&#34;&gt;Link&lt;/a&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;Fast and reliable real-time inference for astronomical data? Now possible with Simulation-Based Inference.&lt;/p&gt;</description>
     </item>
     <item>
       <title>GMVAE clustering applied to RNA sequencing</title>
-      <link>http://localhost:1313/posts/2023-03-19-gmvae-clustering-applied-to-rna-sequencing/</link>
+      <link>https://wesenheit.github.io/posts/2023-03-19-gmvae-clustering-applied-to-rna-sequencing/</link>
       <pubDate>Sun, 19 Mar 2023 15:00:00 +0100</pubDate>
-      <guid>http://localhost:1313/posts/2023-03-19-gmvae-clustering-applied-to-rna-sequencing/</guid>
+      <guid>https://wesenheit.github.io/posts/2023-03-19-gmvae-clustering-applied-to-rna-sequencing/</guid>
       <description>&lt;p&gt;Traditional clustering methods typically rely on the raw, observed features of data.&#xA;However, we can often achieve better results by using Variational Autoencoders (VAEs)&#xA;to create an embedded representation of the data first.&lt;/p&gt;</description>
     </item>
     <item>
       <title>LSTM vs Tolkien</title>
-      <link>http://localhost:1313/posts/2023-02-02-lstm-tolkien/</link>
+      <link>https://wesenheit.github.io/posts/2023-02-02-lstm-tolkien/</link>
       <pubDate>Thu, 02 Feb 2023 23:20:00 +0100</pubDate>
-      <guid>http://localhost:1313/posts/2023-02-02-lstm-tolkien/</guid>
+      <guid>https://wesenheit.github.io/posts/2023-02-02-lstm-tolkien/</guid>
       <description>&lt;h1 id=&#34;introduction&#34;&gt;Introduction&lt;/h1&gt;&#xA;&lt;p&gt;This notebook is greatly inspired by &lt;a href=&#34;https://gbnegrini.com/post/tolkien-character-or-prescription-drug-neural-networks/&#34;&gt;this notebook&lt;/a&gt; by G. Negrini. Please check out his website, as he make really good content.&#xA;In original notebook, the Keras library was used. This approach is based on duo Jax + &lt;a href=&#34;https://dm-haiku.readthedocs.io/en/latest/&#34;&gt;Haiku&lt;/a&gt; from DeepMind.&#xA;We will try to distinguish between drug names and Tolkien characters&#xA;using simple LSTM model, surprisingly it isn&amp;rsquo;t as easy as one can think. If you want to challenge yourself, here is popular website with &lt;a href=&#34;https://antidepressantsortolkien.vercel.app/&#34;&gt;great quiz&lt;/a&gt;.&lt;/p&gt;</description>
     </item>
   </channel>
