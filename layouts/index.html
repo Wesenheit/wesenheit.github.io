@@ -1,0 +1,17 @@
+{{ define "main" }}
+  <h1>{{ .Title }}</h1>
+  <div class="intro">{{ .Content }}</div>
+
+  {{ $featured := where .Site.RegularPages "Params.featured" true }}
+  {{ if $featured }}
+    <h2>Featured Content</h2>
+    {{ range $featured }}
+      <div style="margin-bottom:1em;">
+        <a href="{{ .RelPermalink }}"><strong>{{ .Title }}</strong></a>
+        <span style="color:gray;">({{ .Params.year }})</span>
+        <div>{{ .Summary }}</div>
+      </div>
+    {{ end }}
+  {{ end }}
+{{ end }}
+

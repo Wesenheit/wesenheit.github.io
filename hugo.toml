@@ -8,12 +8,24 @@ pygmentscodefencesguesssyntax = true
 googleAnalytics = "G-VJNX3W6V2E"
 disqusShortname = "yourDisqusShortname"
 
+[menu]
+  [[menu.main]]
+    name = "Publications"
+    url = "/publications/"
+    weight = 1
+
+
 [params]
 	mode = "toggle" # color-mode → light,dark,toggle or auto
 	useCDN = false # don't use CDNs for fonts and icons, instead serve them locally.
 	mathjax = true # enable MathJax support
 	katex = true # enable KaTeX support
     subtitle  = "Applying math to solve different problems."
+
+[taxonomies]
+  tag = "tags"
+  category = "categories"
+
 # Social Tags
 
 [[params.social]]
@@ -25,6 +37,7 @@ url = "https://github.com/wesenheit"
 name = "Twitter"
 icon = "twitter"
 url = "https://x.com/mrKapustaa"
+
 
 [[menu.main]]
 name = "Home"

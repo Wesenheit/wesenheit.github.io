@@ -2,10 +2,18 @@
 layout: post
 title:  "GMVAE clustering applied to RNA sequencing"
 date:   2023-03-19 15:00:00 +0100
+year: 2023
 tags: [Bayes,Deep Learning]
+featured: true
 header-includes:
    - \usepackage{amsmath,amssymb}
 ---
+
+Traditional clustering methods typically rely on the raw, observed features of data.
+However, we can often achieve better results by using Variational Autoencoders (VAEs)
+to create an embedded representation of the data first.
+
+<!--more-->
 ## Introduction
 One of many classical tasks of machine learning is clustering, based on the data one would like to distinguish some clusters.
 There are many classical approaches to clustering, the most notable ones include: K-means, GMM (Gaussian Mixture Model) trained with the EM algorithm, and DBSCAN.

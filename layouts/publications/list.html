@@ -1,0 +1,45 @@
+{{ define "main" }}
+  <h1>{{ .Title }}</h1>
+
+  <div class="section-intro">
+    {{ .Content }}
+  </div>
+
+  {{ range .Pages }}
+    <div class="publication-item" style="margin-bottom: 1.5em;">
+      <div style="display: flex; justify-content: space-between; align-items:center;">
+        <span>
+          <a href="{{ .RelPermalink }}"><strong>{{ .Title }}</strong></a>
+        </span>
+        <span>{{ .Params.year }}</span>
+      </div>
+
+      <div style="margin-top:0.3em;">
+        {{ .Summary }}
+      </div>
+
+      {{ if .Params.tags }}
+        <div class="tags" style="margin-top:0.3em;">
+          Tags: 
+          {{ range .Params.tags }}
+            <span style="background-color:#444; color:#fff; padding:0.1em 0.5em; border-radius:0.3em; margin-right:0.3em;">
+              {{ . }}
+            </span>
+          {{ end }}
+        </div>
+      {{ end }}
+
+      {{ if .Params.categories }}
+        <div class="categories" style="margin-top:0.3em;">
+          Categories: 
+          {{ range .Params.categories }}
+            <span style="background-color:#555; color:#fff; padding:0.1em 0.5em; border-radius:0.3em; margin-right:0.3em;">
+              {{ . }}
+            </span>
+          {{ end }}
+        </div>
+      {{ end }}
+    </div>
+  {{ end }}
+{{ end }}
+

@@ -1,23 +1,15 @@
 <!DOCTYPE html>
-<html><head lang="en">
+<html><head lang="en"><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
 	<meta charset="utf-8" />
 	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>GMVAE clustering applied to RNA sequencing - Wesenheit</title><meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta name="description" content="Introduction
-One of many classical tasks of machine learning is clustering, based on the data one would like to distinguish some clusters.
-There are many classical approaches to clustering, the most notable ones include: K-means, GMM (Gaussian Mixture Model) trained with the EM algorithm, and DBSCAN.
-While each of those algorithms is widely used in research and industry,
-all of them try to cluster the data using its original representation and mostly fail in the case of hidden similarity between observations.\
-In this post, I present a GMM&#43;VAE deep learning architecture, which will be used to cluster the data based on a learned embedding of the data.
-The clustering model is based on this paper, while application to RNA sequencing data is based on the work that I performed during my studies at the Warsaw University.
-The original project with a solution can be found in a related GitHub repository.
-The dataset used in the study was taken from the NeuroIPS 2021 competition. In this blog, we will tackle the joint
-embedding part of the competition. We will try to embed biological information in an unsupervised manner and at the same time reduce the impact of batch effect on
-the model performance." />
+	<meta name="description" content="Traditional clustering methods typically rely on the raw, observed features of data.
+However, we can often achieve better results by using Variational Autoencoders (VAEs)
+to create an embedded representation of the data first." />
 	<meta property="og:image" content=""/>
-	<meta property="og:url" content="https://wesenheit.github.io/posts/2023-03-19-gmvae-clustering-applied-to-rna-sequencing/">
+	<meta property="og:url" content="http://localhost:1313/posts/2023-03-19-gmvae-clustering-applied-to-rna-sequencing/">
   <meta property="og:site_name" content="Wesenheit">
   <meta property="og:title" content="GMVAE clustering applied to RNA sequencing">
-  <meta property="og:description" content="Introduction One of many classical tasks of machine learning is clustering, based on the data one would like to distinguish some clusters. There are many classical approaches to clustering, the most notable ones include: K-means, GMM (Gaussian Mixture Model) trained with the EM algorithm, and DBSCAN. While each of those algorithms is widely used in research and industry, all of them try to cluster the data using its original representation and mostly fail in the case of hidden similarity between observations.\ In this post, I present a GMM&#43;VAE deep learning architecture, which will be used to cluster the data based on a learned embedding of the data. The clustering model is based on this paper, while application to RNA sequencing data is based on the work that I performed during my studies at the Warsaw University. The original project with a solution can be found in a related GitHub repository. The dataset used in the study was taken from the NeuroIPS 2021 competition. In this blog, we will tackle the joint embedding part of the competition. We will try to embed biological information in an unsupervised manner and at the same time reduce the impact of batch effect on the model performance.">
+  <meta property="og:description" content="Traditional clustering methods typically rely on the raw, observed features of data. However, we can often achieve better results by using Variational Autoencoders (VAEs) to create an embedded representation of the data first.">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="article">
     <meta property="article:section" content="posts">
@@ -28,15 +20,15 @@ the model performance." />
 
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="GMVAE clustering applied to RNA sequencing">
-  <meta name="twitter:description" content="Introduction One of many classical tasks of machine learning is clustering, based on the data one would like to distinguish some clusters. There are many classical approaches to clustering, the most notable ones include: K-means, GMM (Gaussian Mixture Model) trained with the EM algorithm, and DBSCAN. While each of those algorithms is widely used in research and industry, all of them try to cluster the data using its original representation and mostly fail in the case of hidden similarity between observations.\ In this post, I present a GMM&#43;VAE deep learning architecture, which will be used to cluster the data based on a learned embedding of the data. The clustering model is based on this paper, while application to RNA sequencing data is based on the work that I performed during my studies at the Warsaw University. The original project with a solution can be found in a related GitHub repository. The dataset used in the study was taken from the NeuroIPS 2021 competition. In this blog, we will tackle the joint embedding part of the competition. We will try to embed biological information in an unsupervised manner and at the same time reduce the impact of batch effect on the model performance.">
+  <meta name="twitter:description" content="Traditional clustering methods typically rely on the raw, observed features of data. However, we can often achieve better results by using Variational Autoencoders (VAEs) to create an embedded representation of the data first.">
 
-        <link href="https://wesenheit.github.io/css/fonts.2c2227b81b1970a03e760aa2e6121cd01f87c88586803cbb282aa224720a765f.css" rel="stylesheet">
+        <link href="http://localhost:1313/css/fonts.2c2227b81b1970a03e760aa2e6121cd01f87c88586803cbb282aa224720a765f.css" rel="stylesheet">
 	
 
 	
-	<link rel="stylesheet" type="text/css" media="screen" href="https://wesenheit.github.io/css/main.6a0f23ea50fd34b46fee262a5a68e17d458c51a2bc99ba1ba018065de6b180c3.css" />
-		<link id="darkModeStyle" rel="stylesheet" type="text/css" href="https://wesenheit.github.io/css/dark.50b57e12d401420df23965fed157368aba37b76df0ecefd0b1ecd4da664f01a0.css"  disabled /><script type="text/javascript"
-		src="https://wesenheit.github.io/js/MathJax.js"></script>
+	<link rel="stylesheet" type="text/css" media="screen" href="http://localhost:1313/css/main.c06532f353d0cd02fce00c46635aa6b051b4c9ab3d821415cb08083eadbe7383.css" />
+		<link id="darkModeStyle" rel="stylesheet" type="text/css" href="http://localhost:1313/css/dark.50b57e12d401420df23965fed157368aba37b76df0ecefd0b1ecd4da664f01a0.css"  disabled /><script type="text/javascript"
+		src="http://localhost:1313/js/MathJax.js"></script>
 		
 		<script type="text/x-mathjax-config">
 		MathJax.Hub.Config({
@@ -50,9 +42,9 @@ the model performance." />
 						 extensions: ["AMSmath.js", "AMSsymbols.js"] }
 			}
 		});
-		</script><link rel="stylesheet" href="https://wesenheit.github.io/katex/katex.min.css ">
-		<script defer src="https://wesenheit.github.io/katex/katex.min.js"></script>
-		<script defer src="https://wesenheit.github.io/katex/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+		</script><link rel="stylesheet" href="http://localhost:1313/katex/katex.min.css ">
+		<script defer src="http://localhost:1313/katex/katex.min.js"></script>
+		<script defer src="http://localhost:1313/katex/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
 		
 		<script>
 			document.addEventListener("DOMContentLoaded", function() {
@@ -68,11 +60,13 @@ the model performance." />
 <body>
         <div class="content"><header>
 	<div class="main">
-		<a href="https://wesenheit.github.io/">Wesenheit</a>
+		<a href="http://localhost:1313/">Wesenheit</a>
 	</div>
 	<nav>
 		
 		<a href="/">Home</a>
+		
+		<a href="/publications/">Publications</a>
 		
 		<a href="/posts">All posts</a>
 		
@@ -83,7 +77,7 @@ the model performance." />
 		| <span id="dark-mode-toggle" onclick="toggleTheme()"><svg class="feather">
    <use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#sun" />
 </svg></span>
-		<script src="https://wesenheit.github.io/js/themetoggle.js"></script>
+		<script src="http://localhost:1313/js/themetoggle.js"></script>
 		
 	</nav>
 </header>
@@ -103,7 +97,10 @@ the model performance." />
         </div>
         
         <section class="body">
-          <h2 id="introduction">Introduction</h2>
+          <p>Traditional clustering methods typically rely on the raw, observed features of data.
+However, we can often achieve better results by using Variational Autoencoders (VAEs)
+to create an embedded representation of the data first.</p>
+<h2 id="introduction">Introduction</h2>
 <p>One of many classical tasks of machine learning is clustering, based on the data one would like to distinguish some clusters.
 There are many classical approaches to clustering, the most notable ones include: K-means, GMM (Gaussian Mixture Model) trained with the EM algorithm, and DBSCAN.
 While each of those algorithms is widely used in research and industry,
@@ -356,7 +353,6 @@ We can see that the embedding is much better in resolving particular cell types 
 <p>In the presented work performance of GMVAE was analysed with regard to the unsupervised clustering task. Negative binomial distribution
 was used to model gene expression data, resulting in a quite good embedding of biological signal together with suppression of batch effect. The whole model with
 associated code can be found in <a href="https://github.com/Wesenheit/GEX_GMVAE">github repository</a>.</p>
-
         </section>
         <div class="post-tags">
           
@@ -411,22 +407,6 @@ associated code can be found in <a href="https://github.com/Wesenheit/GEX_GMVAE"
       href="https://github.com/athul/archie">Archie Theme</a> | Built with <a href="https://gohugo.io">Hugo</a>
   </div>
 </footer>
-
-
-      <script async src="https://www.googletagmanager.com/gtag/js?id=G-VJNX3W6V2E"></script>
-      <script>
-        var doNotTrack = false;
-        if ( false ) {
-          var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
-          var doNotTrack = (dnt == "1" || dnt == "yes");
-        }
-        if (!doNotTrack) {
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', 'G-VJNX3W6V2E');
-        }
-      </script>
 
 </div>
     </body>
