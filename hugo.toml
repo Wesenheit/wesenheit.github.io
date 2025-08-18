@@ -1,12 +1,12 @@
 baseURL = 'https://wesenheit.github.io/'
 languageCode = "en-us"
-title = "Wesenheit"
+title = "Mateusz Kapusta (@Wesenheit)"
 theme = "archie"
 pygmentsstyle = "monokai"
 pygmentscodefences = true
 pygmentscodefencesguesssyntax = true
 googleAnalytics = "G-VJNX3W6V2E"
-disqusShortname = "yourDisqusShortname"
+enableRobotsTXT = true
 
 [menu]
   [[menu.main]]
@@ -16,6 +16,9 @@ disqusShortname = "yourDisqusShortname"
 
 
 [params]
+    author = "Mateusz Kapusta"
+    description = "Mateusz Kapusta, research in Machine Learning and Astrophysics"
+    keywords = ["machine learning","astrophysics"]
 	mode = "toggle" # color-mode → light,dark,toggle or auto
 	useCDN = false # don't use CDNs for fonts and icons, instead serve them locally.
 	mathjax = true # enable MathJax support
