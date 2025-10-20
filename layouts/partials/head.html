@@ -21,6 +21,12 @@
 		<script src="{{ absURL "js/themetoggle.js" }}"></script>
 		{{ end }}
 	</nav>
+	
+	{{ if .IsHome }}
+ 	 {{ with site.Params.subtitle }}
+    	<p class="subtitle">{{ . }}</p>
+  	{{ end }}
+	{{ end }}
 </header>
 
 {{ if or .Params.math .Site.Params.math }}

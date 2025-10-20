@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>HPC on Mateusz Kapusta (@Wesenheit)</title>
+    <link>http://localhost:1313/tags/hpc/</link>
+    <description>Recent content in HPC on Mateusz Kapusta (@Wesenheit)</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 02 Oct 2025 22:20:00 +0100</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/hpc/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>HPC in Julia: ready or not?</title>
+      <link>http://localhost:1313/posts/2025_juliahd/</link>
+      <pubDate>Thu, 02 Oct 2025 22:20:00 +0100</pubDate>
+      <guid>http://localhost:1313/posts/2025_juliahd/</guid>
+      <description>&lt;h1 id=&#34;introduction&#34;&gt;Introduction&lt;/h1&gt;&#xA;&lt;p&gt;Compuattional astrophysics represents an ever-growing field that tries to simulate the most complicated process&#xA;that make our universe such complex place. Since the beginning of century several high profile numerical codes have been created.&#xA;Because I am biased to high-energy astrophysics I will discuss here relativistic hydrodynamical simulations used to&#xA;describe complex accretion flows.&lt;/p&gt;&#xA;&lt;p&gt;The most basic and influential code developed in the field is &lt;a href=&#34;https://ui.adsabs.harvard.edu/abs/2003ApJ...589..444G/abstract&#34;&gt;HARM&lt;/a&gt;, 2D code&#xA;developed in 2003 to model complex relativistic. It was written in C and parallelized with MPI. Since then, many things have&#xA;changed in HPC. Most importantly, the GPU became de-facto standard tool to run simulations. Due to the sheer complexity of&#xA;scientific codes several other tools have been created to help port the code to GPU-s. The most influential&#xA;tool is &lt;a href=&#34;https://github.com/kokkos/kokkos&#34;&gt;KOKKOS&lt;/a&gt; - performance portability layer. It allowed to easily port most of numerical-heavy&#xA;codes to GPUs resulting in several codes including &lt;a href=&#34;https://github.com/IAS-Astrophysics/athenak&#34;&gt;AthenaK&lt;/a&gt;. Move to kokkos&#xA;does not necessarily made life of scientists easier, each of modern kokkos codes still require enourmous amounts of code to work&#xA;properly. Especially, the bar to write own GRMHD code is still quite high. This post describes the undertaken efforts&#xA;to lover the bar and create a platform to build production-ready HPC code that would be easy to hack and modify.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

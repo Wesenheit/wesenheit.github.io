@@ -6,7 +6,7 @@ draft: false
 tags: ["imaging"]
 categories: ["Astrophysics"]
 ---
-- Authors: Mateusz Kapusta, Przemysław Mróz, OGLE and KMTNet collaborations.  
+- Authors: Mateusz Kapusta, Przemek Mróz, OGLE and KMTNet collaborations.  
 - Journal: Astronomy & Astrophysics
 [Link](https://arxiv.org/abs/2507.01109)
 

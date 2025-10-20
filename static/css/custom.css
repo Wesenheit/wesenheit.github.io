@@ -3,3 +3,14 @@ body:has(#dark-mode-toggle .feather use[href*="#sun"]) img.invert-on-dark {
     filter: invert(100%) hue-rotate(180deg);
 }
 
+.subtitle {
+    margin-top: 0.0rem;  
+    margin-bottom: 0.0rem;
+    font-size:1.2rem;
+    color: grey;
+}
+
+.site-header {
+    margin-bottom: 0.0rem;
+    padding-bottom: 0.0rem;
+}
